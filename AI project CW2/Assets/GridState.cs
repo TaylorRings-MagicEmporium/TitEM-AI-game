@@ -7,6 +7,7 @@ public class GridState : MonoBehaviour
 {
 
     public bool NotWalkable = false;
+    public GameObject wall;
     // Start is called before the first frame update
     void Start()
     {
@@ -19,10 +20,18 @@ public class GridState : MonoBehaviour
         if (NotWalkable)
         {
             GetComponent<OffMeshLink>().area = 1;
+            if (wall)
+            {
+                wall.SetActive(true);
+            }
         }
         else if (!NotWalkable)
         {
             GetComponent<OffMeshLink>().area = 0;
+            if (wall)
+            {
+                wall.SetActive(false);
+            }
         }
     }
 }
