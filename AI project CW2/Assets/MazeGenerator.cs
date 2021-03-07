@@ -31,6 +31,9 @@ public class MazeGenerator : MonoBehaviour
     // the player
     public GameObject Player;
 
+
+    public GameObject GuardObject;
+
     // treasure rooms contain treasure. might move to a manager for this maybe?
     public int TreasureRooms = 3;
     public List<FloorNode> TreasureNodes = new List<FloorNode>();
@@ -41,6 +44,7 @@ public class MazeGenerator : MonoBehaviour
         UP, RIGHT, DOWN, LEFT
     };
 
+    List<FloorNode> AllFloorPaths = new List<FloorNode>();
 
     // used to setup the floor once the scene is built
     void SetupFloor()
@@ -322,9 +326,12 @@ public class MazeGenerator : MonoBehaviour
                 }
             }
         }
+
+        AllFloorPaths = new List<FloorNode>(UsedNodes);
+
         // the start location is randomised.
         CurrentStartNode = PossiblePlayerStarts[Random.Range(0, PossiblePlayerStarts.Count)];
-
+        CurrentStartNode.IsStartingRoom = true;
         // deploying treasures by picking a random room
         for(int i = 0; i < TreasureRooms; i++)
         {
@@ -343,6 +350,8 @@ public class MazeGenerator : MonoBehaviour
             TreasureItems.Add(g);
             UsedNodes.RemoveAt(idx);
         }
+
+
 
     }
     
@@ -369,6 +378,11 @@ public class MazeGenerator : MonoBehaviour
         }
         TreasureItems.Clear();
         TreasureNodes.Clear();
+
+        foreach(GameObject g in GameObject.FindGameObjectsWithTag("Guard"))
+        {
+            Destroy(g);
+        }
         
     }
 
@@ -376,6 +390,63 @@ public class MazeGenerator : MonoBehaviour
     void PlacePlayer()
     {
         Player.transform.position = CurrentStartNode.transform.parent.position + new Vector3(0, 1.5f);
+    }
+
+    void PlaceGuards()
+    {
+        // Guard deployment - Stand
+        int GuardsToStand = 1;
+        List<FloorNode> PossRooms = new List<FloorNode>();
+        Dictionary<FloorNode, FloorNode> test = new Dictionary<FloorNode, FloorNode>();
+        for (int i = 0; i < TreasureNodes.Count; i++)
+        {
+            for (int b = 0; b < 4; b++)
+            {
+                if (TreasureNodes[i].PathConnectors[b])
+                {
+                    if(!TreasureNodes[i].GridConnectors[b].IsStartingRoom && !TreasureNodes[i].GridConnectors[b].IsTreasureRoom)
+                    {
+                        test[TreasureNodes[i].GridConnectors[b]] = TreasureNodes[i].GridConnectors[b];
+                    }
+
+                }
+            }
+        }
+
+        PossRooms.AddRange(test.Values);
+
+        GameObject g;
+        for (int i = 0; i < GuardsToStand; i++)
+        {
+            int chosen = Random.Range(0, PossRooms.Count);
+            FloorNode node = PossRooms[chosen];
+            g = Instantiate(GuardObject, PossRooms[chosen].transform.parent.position + new Vector3(0, 1.5f, 0), Quaternion.identity);
+            g.GetComponent<Guard>().Stand = true;
+            PossRooms.RemoveAt(chosen);
+
+        }
+
+        int GuardsToWalk = 1;
+        int WaypointNo = 3;
+
+        List<FloorNode> FloorPaths = new List<FloorNode>(AllFloorPaths);
+        g = Instantiate(GuardObject);
+        g.GetComponent<Guard>().Waypoint = true;
+        for (int i = 0; i < WaypointNo; i++)
+        {
+            int chos = Random.Range(0, FloorPaths.Count);
+
+            g.GetComponent<Guard>().waypoints.Add(FloorPaths[chos].transform.parent.position + new Vector3(0, 1.5f, 0));
+            FloorPaths.RemoveAt(chos);
+
+           
+        }
+        //g.transform.position = g.GetComponent<Guard>().waypoints[0];
+        //g.transform.rotation = Quaternion.identity;
+        g.GetComponent<Guard>().Start();
+        g.GetComponent<Guard>().BeginWalking();
+
+       
     }
 
     // Start is called before the first frame update
@@ -386,6 +457,7 @@ public class MazeGenerator : MonoBehaviour
 
         GenerateFloor();
         PlacePlayer();
+        PlaceGuards();
 
     }
 
@@ -397,6 +469,7 @@ public class MazeGenerator : MonoBehaviour
             ResetFloor();
             GenerateFloor();
             PlacePlayer();
+            PlaceGuards();
         }
     }
 }

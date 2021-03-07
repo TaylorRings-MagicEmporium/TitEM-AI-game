@@ -22,6 +22,7 @@ public class FloorNode : MonoBehaviour
     public bool addedUnvisited = false;
     public bool Used = false;
     public bool IsTreasureRoom = false;
+    public bool IsStartingRoom = false;
 
     // locates which floorNodes are "linked" to itself based on a rectangle of floorNodes.
     private void Awake()
@@ -63,6 +64,7 @@ public class FloorNode : MonoBehaviour
         addedUnvisited = false;
         Used = false;
         IsTreasureRoom = false;
+        IsStartingRoom = false;
         ChangeFloor(true);
     }
 }
