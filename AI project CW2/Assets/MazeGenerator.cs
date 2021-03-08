@@ -88,7 +88,7 @@ public class MazeGenerator : MonoBehaviour
 
         // initialise the unvisited nodes by looking at start location.
         List<FloorNode> UnvisitedNodes = new List<FloorNode>();
-        List<FloorNode> UsedNodes = new List<FloorNode>(); // doesn't include start, as we only want un-assigned used rooms
+        List<FloorNode> UsedNodes = new List<FloorNode>();
         UsedNodes.Add(start);
         for (int i = 0; i < 4; i++)
         {
@@ -330,25 +330,33 @@ public class MazeGenerator : MonoBehaviour
         AllFloorPaths = new List<FloorNode>(UsedNodes);
 
         // the start location is randomised.
-        CurrentStartNode = PossiblePlayerStarts[Random.Range(0, PossiblePlayerStarts.Count)];
+        int ranStartPos = Random.Range(0, PossiblePlayerStarts.Count);
+        CurrentStartNode = PossiblePlayerStarts[ranStartPos];
+
+        AllFloorPaths.Remove(CurrentStartNode);
+        PossiblePlayerStarts.RemoveAt(ranStartPos);
+
         CurrentStartNode.IsStartingRoom = true;
         // deploying treasures by picking a random room
         for(int i = 0; i < TreasureRooms; i++)
         {
-            int idx = Random.Range(0, UsedNodes.Count);
-            if(UsedNodes[idx] == CurrentStartNode)
-            {
-                UsedNodes.RemoveAt(idx);
-                idx = Random.Range(0, UsedNodes.Count);
-            }
 
-            Debug.Log(UsedNodes[idx].GridLoc);
-            TreasureNodes.Add(UsedNodes[idx]);
+            int idx = Random.Range(0, PossiblePlayerStarts.Count);
+
+            //int idx = Random.Range(0, UsedNodes.Count);
+            //if(UsedNodes[idx] == CurrentStartNode)
+            //{
+            //    UsedNodes.RemoveAt(idx);
+            //    idx = Random.Range(0, UsedNodes.Count);
+            //}
+
+            Debug.Log(PossiblePlayerStarts[idx].GridLoc);
+            TreasureNodes.Add(PossiblePlayerStarts[idx]);
             TreasureNodes[i].IsTreasureRoom = true;
 
             GameObject g = Instantiate(Treasure, TreasureNodes[i].transform.parent.position, Quaternion.identity);
             TreasureItems.Add(g);
-            UsedNodes.RemoveAt(idx);
+            PossiblePlayerStarts.RemoveAt(idx);
         }
 
 
@@ -421,30 +429,46 @@ public class MazeGenerator : MonoBehaviour
             int chosen = Random.Range(0, PossRooms.Count);
             FloorNode node = PossRooms[chosen];
             g = Instantiate(GuardObject, PossRooms[chosen].transform.parent.position + new Vector3(0, 1.5f, 0), Quaternion.identity);
-            g.GetComponent<Guard>().Stand = true;
+            g.AddComponent<Standing_Guard>();
+            g.GetComponent<Standing_Guard>().Start();
+            g.GetComponent<Standing_Guard>().StandingPoint = PossRooms[chosen].transform.parent.position + new Vector3(0, 1.5f, 0);
+            g.GetComponent<Standing_Guard>().Stand = true;
+            g.GetComponent<Standing_Guard>().BeginTurning();
+            g.GetComponent<Standing_Guard>().StartSuspision();
             PossRooms.RemoveAt(chosen);
 
         }
 
-        int GuardsToWalk = 1;
+        //Guard deployment - walking
+
+        int GuardsToWalk = 2;
         int WaypointNo = 3;
 
         List<FloorNode> FloorPaths = new List<FloorNode>(AllFloorPaths);
-        g = Instantiate(GuardObject);
-        g.GetComponent<Guard>().Waypoint = true;
-        for (int i = 0; i < WaypointNo; i++)
+
+        for(int b = 0; b < GuardsToWalk; b++)
         {
-            int chos = Random.Range(0, FloorPaths.Count);
+            g = Instantiate(GuardObject);
+            g.AddComponent<Walking_Guard>();
+            g.GetComponent<Walking_Guard>().Waypoint = true;
 
-            g.GetComponent<Guard>().waypoints.Add(FloorPaths[chos].transform.parent.position + new Vector3(0, 1.5f, 0));
-            FloorPaths.RemoveAt(chos);
+            for (int i = 0; i < WaypointNo; i++)
+            {
+                int chos = Random.Range(0, FloorPaths.Count);
 
-           
+
+                g.GetComponent<Walking_Guard>().waypoints.Add(FloorPaths[chos].transform.parent.position + new Vector3(0, 1.5f, 0));
+                FloorPaths.RemoveAt(chos);
+
+
+            }
+            //g.transform.position = g.GetComponent<Guard>().waypoints[0];
+            //g.transform.rotation = Quaternion.identity;
+            g.GetComponent<Walking_Guard>().Start();
+            g.GetComponent<Walking_Guard>().BeginWalking();
+            g.GetComponent<Walking_Guard>().StartSuspision();
         }
-        //g.transform.position = g.GetComponent<Guard>().waypoints[0];
-        //g.transform.rotation = Quaternion.identity;
-        g.GetComponent<Guard>().Start();
-        g.GetComponent<Guard>().BeginWalking();
+
 
        
     }
