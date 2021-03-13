@@ -21,12 +21,16 @@ public class Guard : MonoBehaviour
     public float AngleLimit = 45.0f;
     public float val;
 
+    Vector3 Canvas_diff;
+
     public GameObject Suspision_Meter;
     public void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         Player = GameObject.FindGameObjectWithTag("Player");
         Suspision_Meter = GetComponent<Access_Points>().Suspision_Meter;
+
+        Canvas_diff = GetComponent<Access_Points>().canvas.transform.position - transform.position;
     }
 
     public void Update()
@@ -38,6 +42,9 @@ public class Guard : MonoBehaviour
         }
 
         Suspision_Meter.GetComponent<Image>().fillAmount = (GuardSuspisionLevel / 100.0f);
+
+        GetComponent<Access_Points>().canvas.transform.position = transform.position + Canvas_diff;
+    
     }
 
     public void StartSuspision()
