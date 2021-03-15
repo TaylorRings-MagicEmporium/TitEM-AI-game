@@ -7,6 +7,7 @@ TagManager:
   - FloorCon
   - Guard
   - Treasure
+  - Manager
   layers:
   - Default
   - TransparentFX

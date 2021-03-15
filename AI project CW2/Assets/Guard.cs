@@ -5,6 +5,9 @@ using UnityEngine.AI;
 using UnityEngine.UI;
 public class Guard : MonoBehaviour
 {
+
+    //public Vector2 GridPos;
+
     public bool Stand = false;
     public bool Waypoint = false;
 
@@ -23,14 +26,36 @@ public class Guard : MonoBehaviour
 
     Vector3 Canvas_diff;
 
+    public float MinimumLimit = 0.0f;
+    public float MaximumLimit = 100.0f;
+
+    public enum BehaviourStates {PATROL, INVESTIGATE, CHASE };
+    public BehaviourStates currentStates;
+    BehaviourStates prevStates;
+
+    protected Coroutine Current_Behaviour_Enum;
+
+    bool StartBehaviour = false;
     public GameObject Suspision_Meter;
+
+    gamemanager gm;
+
+    public bool TreasureStolen = false;
+
     public void Start()
     {
+        gm = GameObject.FindGameObjectWithTag("Manager").GetComponent<gamemanager>();
+
+
         agent = GetComponent<NavMeshAgent>();
         Player = GameObject.FindGameObjectWithTag("Player");
         Suspision_Meter = GetComponent<Access_Points>().Suspision_Meter;
 
         Canvas_diff = GetComponent<Access_Points>().canvas.transform.position - transform.position;
+        currentStates = BehaviourStates.PATROL;
+        prevStates = BehaviourStates.PATROL;
+        StartCoroutine(Behaviour_State_Update());
+
     }
 
     public void Update()
@@ -44,7 +69,8 @@ public class Guard : MonoBehaviour
         Suspision_Meter.GetComponent<Image>().fillAmount = (GuardSuspisionLevel / 100.0f);
 
         GetComponent<Access_Points>().canvas.transform.position = transform.position + Canvas_diff;
-    
+
+        Behaviour_Response();
     }
 
     public void StartSuspision()
@@ -54,6 +80,7 @@ public class Guard : MonoBehaviour
 
     public IEnumerator SuspisionManager()
     {
+
         while (true)
         {
             float len = (Player.transform.position - transform.position).magnitude;
@@ -71,13 +98,13 @@ public class Guard : MonoBehaviour
                             if (hit.distance <= 5.0f)
                             {
                                 //increase 3x
-                                GuardSuspisionLevel += 30.0f;
+                                GuardSuspisionLevel += 27.0f;
 
                             }
                             else if (hit.distance <= 10.0f)
                             {
                                 // increase 2x
-                                GuardSuspisionLevel += 15.0f;
+                                GuardSuspisionLevel += 13.0f;
 
                             }
                             else
@@ -87,7 +114,7 @@ public class Guard : MonoBehaviour
 
                             }
 
-                            if (GuardSuspisionLevel > 100.0f)
+                            if (GuardSuspisionLevel > MaximumLimit)
                             {
                                 GuardSuspisionLevel = 100.0f;
                             }
@@ -104,7 +131,7 @@ public class Guard : MonoBehaviour
                 }
                 else
                 {
-                    if(len <= 5.0)
+                    if(len <= 3.0)
                     {
                         GuardSuspisionLevel += 2.0f;
                     }
@@ -120,6 +147,32 @@ public class Guard : MonoBehaviour
             {
                 DecreaseGuardLevel();
             }
+
+            if (!TreasureStolen)
+            {
+
+                RaycastHit hitT;
+                if (Physics.Raycast(transform.position, transform.forward, out hitT, 15.0f))
+                {
+                    if (hitT.transform.CompareTag("Treasure"))
+                    {
+                        float dot = Vector3.Dot((hitT.transform.position - transform.position).normalized, transform.forward);
+                        if(dot > Mathf.Cos(AngleLimit))
+                        {
+
+                        }
+                        if (hitT.transform.GetComponent<Treasure_Info>().IsTreasureTaken())
+                        {
+                            // the treasure is taken! alert all guards!
+                            gm.TreasureTakenRiseAlerts();
+                            Debug.Log("TREASURE TAKEN");
+                        }
+                    }
+                }
+            }
+
+
+
             yield return new WaitForSeconds(0.5f);
         }
 
@@ -128,15 +181,170 @@ public class Guard : MonoBehaviour
     void DecreaseGuardLevel()
     {
         GuardSuspisionLevel -= 2.0f;
-        if (GuardSuspisionLevel < 0.0f)
+        if (GuardSuspisionLevel < MinimumLimit)
         {
-            GuardSuspisionLevel = 0.0f;
+            GuardSuspisionLevel = MinimumLimit;
         }
     }
 
+    IEnumerator Behaviour_State_Update()
+    {
+        while (true)
+        {
+            prevStates = currentStates;
+            switch (currentStates)
+            {
+                case BehaviourStates.PATROL:
+
+                    if (GuardSuspisionLevel > gm.PatrolToInvest)
+                    {
+                        currentStates = BehaviourStates.INVESTIGATE;
+                    }
+
+                    break;
+                case BehaviourStates.INVESTIGATE:
+
+                    if (GuardSuspisionLevel > gm.InvestToChase)
+                    {
+                        currentStates = BehaviourStates.CHASE;
+                    }
+                    else if (GuardSuspisionLevel < gm.PatrolToInvest)
+                    {
+                        currentStates = BehaviourStates.PATROL;
+                    }
+
+                    break;
+                case BehaviourStates.CHASE:
+
+                    if (GuardSuspisionLevel < gm.InvestToChase)
+                    {
+                        currentStates = BehaviourStates.INVESTIGATE;
+                    }
+
+                    break;
+            }
+
+            if(prevStates != currentStates)
+            {
+                StartBehaviour = true;
+            }
+            yield return new WaitForSeconds(0.5f);
+            
+        }
+    }
+
+    public void Behaviour_Response()
+    {
+        switch (currentStates)
+        {
+            case BehaviourStates.PATROL:
+
+                if (StartBehaviour)
+                {
+                    Begin_Patrol();
+                    StartBehaviour = false;
+                }
+
+                break;
+            case BehaviourStates.INVESTIGATE:
+
+                if (StartBehaviour)
+                {
+                    Begin_Investigate();
+                    StartBehaviour = false;
+
+                }
+
+                break;
+            case BehaviourStates.CHASE:
+
+                if (StartBehaviour)
+                {
+                    Begin_Chase();
+                    StartBehaviour = false;
+
+                }
+
+                break;
+        }
+    }
+
+    protected virtual void Begin_Patrol() { }
+    protected virtual void Begin_Investigate() {
+
+        Debug.Log("INVESTIGATING");
+        StopCoroutine(Current_Behaviour_Enum);
+        Current_Behaviour_Enum = StartCoroutine(InvestigateArea());
+
+    }
 
 
+    protected virtual void Begin_Chase() {
+        Debug.Log("CHASING");
+        StopCoroutine(Current_Behaviour_Enum);
+        Current_Behaviour_Enum = StartCoroutine(ChasePlayer());
+    }
+
+    IEnumerator ChasePlayer()
+    {
+
+        GameObject g = GameObject.FindGameObjectWithTag("Player");
+
+        List<GameObject> listOfGuards = new List<GameObject>(GameObject.FindGameObjectsWithTag("Guard"));
+        foreach (GameObject gu in listOfGuards)
+        {
+            if (Vector3.Distance(gu.transform.position, transform.position) <= 15.0f)
+            {
+                gu.GetComponent<Guard>().AlertGuard();
+            }
+        }
+
+        while (true)
+        {
+            agent.SetDestination(g.transform.position);
 
 
+            yield return new WaitForSeconds(0.5f);
+        }
+    }
 
+    IEnumerator InvestigateArea()
+    {
+        Position_Status ac = GameObject.FindGameObjectWithTag("Player").GetComponent<Position_Status>();
+        while (true)
+        {
+            Vector3 randomDirection = Random.insideUnitSphere * 7.0f;
+            randomDirection += ac.GetPos();
+            NavMeshHit navHit;
+            NavMesh.SamplePosition(randomDirection, out navHit, 7.0f,-1);
+
+            agent.SetDestination(navHit.position);
+
+            yield return new WaitForSeconds(2.5f);
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.transform.CompareTag("Player"))
+        {
+            GuardSuspisionLevel += 60.0f;
+        }
+    }
+
+    public void AlertGuard()
+    {
+        Debug.Log("ALERTED");
+        GuardSuspisionLevel += 60.0f;
+    }
+
+    public void TreasureStolenAlert()
+    {
+        TreasureStolen = true;
+        MinimumLimit += 40.0f;
+        if(GuardSuspisionLevel < MinimumLimit)
+        {
+            GuardSuspisionLevel = 45.0f;
+        }
+    }
 }

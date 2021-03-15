@@ -22,6 +22,7 @@ public class FloorNode : MonoBehaviour
     public bool addedUnvisited = false;
     public bool Used = false;
     public bool IsTreasureRoom = false;
+    //public bool TresureTaken = false;
     public bool IsStartingRoom = false;
 
     // locates which floorNodes are "linked" to itself based on a rectangle of floorNodes.
@@ -65,6 +66,7 @@ public class FloorNode : MonoBehaviour
         Used = false;
         IsTreasureRoom = false;
         IsStartingRoom = false;
+        //TresureTaken = false;
         ChangeFloor(true);
     }
 }

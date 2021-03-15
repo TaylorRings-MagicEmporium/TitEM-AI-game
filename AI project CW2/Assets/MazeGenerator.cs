@@ -39,6 +39,10 @@ public class MazeGenerator : MonoBehaviour
     public List<FloorNode> TreasureNodes = new List<FloorNode>();
     List<GameObject> TreasureItems = new List<GameObject>();
 
+    public int GuardsToStand = 1;
+    public int GuardsToWalk = 2;
+    public int wayPointsInPath = 3;
+
     enum Dir
     {
         UP, RIGHT, DOWN, LEFT
@@ -355,11 +359,10 @@ public class MazeGenerator : MonoBehaviour
             TreasureNodes[i].IsTreasureRoom = true;
 
             GameObject g = Instantiate(Treasure, TreasureNodes[i].transform.parent.position, Quaternion.identity);
+            g.GetComponent<Treasure_Info>().NodeLoc = TreasureNodes[i];
             TreasureItems.Add(g);
             PossiblePlayerStarts.RemoveAt(idx);
         }
-
-
 
     }
     
@@ -403,7 +406,6 @@ public class MazeGenerator : MonoBehaviour
     void PlaceGuards()
     {
         // Guard deployment - Stand
-        int GuardsToStand = 1;
         List<FloorNode> PossRooms = new List<FloorNode>();
         Dictionary<FloorNode, FloorNode> test = new Dictionary<FloorNode, FloorNode>();
         for (int i = 0; i < TreasureNodes.Count; i++)
@@ -441,9 +443,6 @@ public class MazeGenerator : MonoBehaviour
 
         //Guard deployment - walking
 
-        int GuardsToWalk = 2;
-        int WaypointNo = 3;
-
         List<FloorNode> FloorPaths = new List<FloorNode>(AllFloorPaths);
 
         for(int b = 0; b < GuardsToWalk; b++)
@@ -452,7 +451,7 @@ public class MazeGenerator : MonoBehaviour
             g.AddComponent<Walking_Guard>();
             g.GetComponent<Walking_Guard>().Waypoint = true;
 
-            for (int i = 0; i < WaypointNo; i++)
+            for (int i = 0; i < wayPointsInPath; i++)
             {
                 int chos = Random.Range(0, FloorPaths.Count);
 

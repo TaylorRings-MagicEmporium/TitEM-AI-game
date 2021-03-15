@@ -388,6 +388,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Suspision_Display: {fileID: 1732805878}
   Suspision_Meter: {fileID: 1646189334}
+  canvas: {fileID: 1436092741}
 --- !u!1 &9046883826389293847
 GameObject:
   m_ObjectHideFlags: 0

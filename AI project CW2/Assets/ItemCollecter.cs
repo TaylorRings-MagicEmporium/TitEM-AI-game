@@ -10,10 +10,15 @@ public class ItemCollecter : MonoBehaviour
     {
         if (other.CompareTag("Treasure"))
         {
+
             Treasure_Info ti = other.GetComponent<Treasure_Info>();
-            other.GetComponent<Collider>().enabled = false;
-            gm.AddTreasureValue(ti.value);
-            Destroy(other.gameObject);
+            if (!ti.IsTreasureTaken())
+            {
+                //other.GetComponent<Collider>().enabled = false;
+                gm.AddTreasureValue(ti.value);
+                ti.TreasureTakenUpdate();
+            }
+
         }
     }
 

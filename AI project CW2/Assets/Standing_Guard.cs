@@ -8,14 +8,19 @@ public class Standing_Guard : Guard
 
     public void BeginTurning()
     {
-        StartCoroutine(WaypointTurning());
+        Current_Behaviour_Enum = StartCoroutine(WaypointTurning());
     }
 
     IEnumerator WaypointTurning()
     {
         while (true)
         {
-            //Debug.Log("2");
+            //while (closeEnough())
+            //{
+            //    agent.SetDestination(StandingPoint);
+            //    yield return new WaitForSeconds(0.5f);
+            //}
+
             turning = true;
 
             rotateCounter = 0.0f;
@@ -24,6 +29,25 @@ public class Standing_Guard : Guard
 
             yield return new WaitForSeconds(3f);
             //turning = false;
+        }
+    }
+
+    protected override void Begin_Patrol()
+    {
+        Debug.Log("PATROLLING");
+        StopCoroutine(Current_Behaviour_Enum);
+        Current_Behaviour_Enum = StartCoroutine(WaypointTurning());
+    }
+
+    bool closeEnough()
+    {
+        if(Vector3.Distance(transform.position, StandingPoint) < 0.1f)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
         }
     }
 }

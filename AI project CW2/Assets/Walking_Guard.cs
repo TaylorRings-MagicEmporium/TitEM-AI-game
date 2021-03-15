@@ -18,7 +18,7 @@ public class Walking_Guard : Guard
 
         transform.rotation = Quaternion.identity;
         agent.enabled = true;
-        StartCoroutine(WaypointMovement());
+        Current_Behaviour_Enum = StartCoroutine(WaypointMovement());
     }
 
 
@@ -81,5 +81,13 @@ public class Walking_Guard : Guard
                 yield return new WaitForSeconds(0.5f);
             }
         }
+    }
+
+    protected override void Begin_Patrol()
+    {
+        Debug.Log("PATROLLING");
+
+        StopCoroutine(Current_Behaviour_Enum);
+        Current_Behaviour_Enum = StartCoroutine(WaypointMovement());
     }
 }
