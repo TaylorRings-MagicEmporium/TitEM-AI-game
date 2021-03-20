@@ -30,9 +30,8 @@ public class MazeGenerator : MonoBehaviour
 
     // the player
     public GameObject Player;
-
-
     public GameObject GuardObject;
+    public GameObject Grate;
 
     // treasure rooms contain treasure. might move to a manager for this maybe?
     public int TreasureRooms = 3;
@@ -401,6 +400,8 @@ public class MazeGenerator : MonoBehaviour
     void PlacePlayer()
     {
         Player.transform.position = CurrentStartNode.transform.parent.position + new Vector3(0, 1.5f);
+        Player.GetComponent<Player_Transition>().Player_Disabled();
+        Instantiate(Grate, CurrentStartNode.transform.parent.position, Quaternion.identity);
     }
 
     void PlaceGuards()
@@ -481,7 +482,7 @@ public class MazeGenerator : MonoBehaviour
         GenerateFloor();
         PlacePlayer();
         PlaceGuards();
-
+        GetComponent<gamemanager>().UpdateFloorStatus(true);
     }
 
     // Update is called once per frame

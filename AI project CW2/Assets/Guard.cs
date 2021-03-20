@@ -159,14 +159,14 @@ public class Guard : MonoBehaviour
                         float dot = Vector3.Dot((hitT.transform.position - transform.position).normalized, transform.forward);
                         if(dot > Mathf.Cos(AngleLimit))
                         {
+                            if (hitT.transform.GetComponent<Treasure_Info>().IsTreasureTaken())
+                            {
+                                // the treasure is taken! alert all guards!
+                                gm.TreasureTakenRiseAlerts();
+                                Debug.Log("TREASURE TAKEN");
+                            }
+                        }
 
-                        }
-                        if (hitT.transform.GetComponent<Treasure_Info>().IsTreasureTaken())
-                        {
-                            // the treasure is taken! alert all guards!
-                            gm.TreasureTakenRiseAlerts();
-                            Debug.Log("TREASURE TAKEN");
-                        }
                     }
                 }
             }

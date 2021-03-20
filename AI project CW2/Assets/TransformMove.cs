@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class TransformMove : MonoBehaviour
-{
-
+{ 
     Rigidbody rb;
 
     public float AccMultiplyer = 1;
@@ -51,29 +50,6 @@ public class TransformMove : MonoBehaviour
             {
                 rb.AddForce(tempForce * AccMultiplyer);
             }
-
         }
-
-
-        //if(tempForce != Vector3.zero)
-        //{
-        //    if(tempForce.x + tempForce.z > 1)
-        //    {
-        //        tempForce = tempForce.normalized;
-        //    }
-        //    if (Input.GetKey(KeyCode.LeftShift))
-        //    {
-        //        transform.Translate(tempForce * multiplyer * 2);
-
-        //    }
-        //    else
-        //    {
-        //        transform.Translate(tempForce * multiplyer);
-
-        //    }
-
-        //}
-
-
     }
 }

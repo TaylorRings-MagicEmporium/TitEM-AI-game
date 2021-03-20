@@ -14,10 +14,25 @@ public class gamemanager : MonoBehaviour
 
     public Text LevelState;
     // Start is called before the first frame update
+
+    bool HasPlayerBegun = false;
+    bool HasFloorBuilt = false;
+    bool HasPlayerEscaped = false;
+    bool HasPlayerCaptured = false;
+
+    public enum Game_State {READY, GAME, ESCAPED, CAPTURED };
+    public Game_State Current_Game_State;
+
+    public GameObject ready_screen;
+    public GameObject game_screen;
+    public GameObject result_screen;
+
     void Start()
     {
         treasureValues.text = "treasures:\n$000";
         StartCoroutine(CheckTotalSusLevel());
+        UpdatePlayerStatus(Game_State.READY);
+        Current_Game_State = Game_State.READY;
 
     }
 
@@ -79,6 +94,32 @@ public class gamemanager : MonoBehaviour
         foreach(GameObject g in GameObject.FindGameObjectsWithTag("Guard"))
         {
             g.GetComponent<Guard>().TreasureStolenAlert();
+        }
+    }
+
+    public void UpdateFloorStatus(bool state)
+    {
+        HasFloorBuilt = state;
+    }
+
+    public void UpdatePlayerStatus(Game_State state)
+    {
+        Current_Game_State = state;
+        if(Current_Game_State == Game_State.ESCAPED)
+        {
+            ready_screen.SetActive(false);
+            result_screen.SetActive(true);
+            game_screen.SetActive(false);
+        } else if(Current_Game_State == Game_State.GAME)
+        {
+            ready_screen.SetActive(false);
+            result_screen.SetActive(false);
+            game_screen.SetActive(true);
+        } else if(Current_Game_State == Game_State.READY)
+        {
+            ready_screen.SetActive(true);
+            result_screen.SetActive(false);
+            game_screen.SetActive(false);
         }
     }
 }
