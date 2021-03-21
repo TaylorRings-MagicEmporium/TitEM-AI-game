@@ -479,21 +479,29 @@ public class MazeGenerator : MonoBehaviour
 
         SetupFloor();
 
-        GenerateFloor();
-        PlacePlayer();
-        PlaceGuards();
-        GetComponent<gamemanager>().UpdateFloorStatus(true);
+        //GenerateFloor();
+        //PlacePlayer();
+        //PlaceGuards();
+        //GetComponent<gamemanager>().UpdateFloorStatus(true);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            ResetFloor();
-            GenerateFloor();
-            PlacePlayer();
-            PlaceGuards();
-        }
+        //if (Input.GetKeyDown(KeyCode.R))
+        //{
+        //    ResetFloor();
+        //    GenerateFloor();
+        //    PlacePlayer();
+        //    PlaceGuards();
+        //}
+    }
+
+    public void Create_Floor_Level()
+    {
+        ResetFloor();
+        GenerateFloor();
+        PlacePlayer();
+        PlaceGuards();
     }
 }

@@ -20,19 +20,25 @@ public class gamemanager : MonoBehaviour
     bool HasPlayerEscaped = false;
     bool HasPlayerCaptured = false;
 
-    public enum Game_State {READY, GAME, ESCAPED, CAPTURED };
+    public enum Game_State {SELECT, READY, GAME, ESCAPED, CAPTURED };
     public Game_State Current_Game_State;
 
     public GameObject ready_screen;
     public GameObject game_screen;
     public GameObject result_screen;
+    public GameObject select_screen;
+    int floor_num = 0;
+    public Text floor_number_text;
+
+    public MazeGenerator MG;
 
     void Start()
     {
         treasureValues.text = "treasures:\n$000";
+        MG = GetComponent<MazeGenerator>();
         StartCoroutine(CheckTotalSusLevel());
-        UpdatePlayerStatus(Game_State.READY);
-        Current_Game_State = Game_State.READY;
+        UpdatePlayerStatus(Game_State.SELECT);
+        //Current_Game_State = Game_State.READY;
 
     }
 
@@ -110,16 +116,40 @@ public class gamemanager : MonoBehaviour
             ready_screen.SetActive(false);
             result_screen.SetActive(true);
             game_screen.SetActive(false);
+            select_screen.SetActive(false);
+            floor_num += 1;
         } else if(Current_Game_State == Game_State.GAME)
         {
             ready_screen.SetActive(false);
             result_screen.SetActive(false);
             game_screen.SetActive(true);
+            select_screen.SetActive(false);
         } else if(Current_Game_State == Game_State.READY)
         {
             ready_screen.SetActive(true);
             result_screen.SetActive(false);
             game_screen.SetActive(false);
+            select_screen.SetActive(false);
+        } else if(Current_Game_State == Game_State.SELECT)
+        {
+            ready_screen.SetActive(false);
+            result_screen.SetActive(false);
+            game_screen.SetActive(false);
+            select_screen.SetActive(true);
+            floor_number_text.text = "Floor " + floor_num;
         }
+    }
+
+    public void Start_Level()
+    {
+        UpdatePlayerStatus(Game_State.READY);
+        MG.Create_Floor_Level();
+    }
+
+    public void Select_Level()
+    {
+        floor_number_text.text = "Floor " + floor_num.ToString();
+        UpdatePlayerStatus(Game_State.SELECT);
+
     }
 }
