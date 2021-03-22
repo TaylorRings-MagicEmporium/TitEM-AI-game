@@ -27,10 +27,13 @@ public class gamemanager : MonoBehaviour
     public GameObject game_screen;
     public GameObject result_screen;
     public GameObject select_screen;
+    public GameObject Over_screen;
     int floor_num = 0;
     public Text floor_number_text;
 
     public MazeGenerator MG;
+    public GameObject Player;
+    public Image PowerBar;
 
     void Start()
     {
@@ -38,14 +41,17 @@ public class gamemanager : MonoBehaviour
         MG = GetComponent<MazeGenerator>();
         StartCoroutine(CheckTotalSusLevel());
         UpdatePlayerStatus(Game_State.SELECT);
-        //Current_Game_State = Game_State.READY;
+        Player = GameObject.FindGameObjectWithTag("Player");
 
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if(Current_Game_State == Game_State.GAME)
+        {
+            PowerBar.fillAmount = (float)Player.GetComponent<Player_Powers>().currentPowerLevel / (float)Player.GetComponent<Player_Powers>().MaxPowerLevel;
+        }
     }
 
     public void AddTreasureValue(int amount)
@@ -92,7 +98,6 @@ public class gamemanager : MonoBehaviour
 
             yield return new WaitForSeconds(0.5f);
         }
-
     }
 
     public void TreasureTakenRiseAlerts()
@@ -117,26 +122,43 @@ public class gamemanager : MonoBehaviour
             result_screen.SetActive(true);
             game_screen.SetActive(false);
             select_screen.SetActive(false);
+            Over_screen.SetActive(false);
             floor_num += 1;
+
         } else if(Current_Game_State == Game_State.GAME)
         {
             ready_screen.SetActive(false);
             result_screen.SetActive(false);
             game_screen.SetActive(true);
             select_screen.SetActive(false);
-        } else if(Current_Game_State == Game_State.READY)
+            Over_screen.SetActive(false);
+
+        }
+        else if(Current_Game_State == Game_State.READY)
         {
             ready_screen.SetActive(true);
             result_screen.SetActive(false);
             game_screen.SetActive(false);
             select_screen.SetActive(false);
-        } else if(Current_Game_State == Game_State.SELECT)
+            Over_screen.SetActive(false);
+
+        }
+        else if(Current_Game_State == Game_State.SELECT)
         {
             ready_screen.SetActive(false);
             result_screen.SetActive(false);
             game_screen.SetActive(false);
             select_screen.SetActive(true);
+            Over_screen.SetActive(false);
+
             floor_number_text.text = "Floor " + floor_num;
+        } else if(Current_Game_State == Game_State.CAPTURED)
+        {
+            ready_screen.SetActive(false);
+            result_screen.SetActive(false);
+            game_screen.SetActive(false);
+            select_screen.SetActive(false);
+            Over_screen.SetActive(true);
         }
     }
 
@@ -144,11 +166,32 @@ public class gamemanager : MonoBehaviour
     {
         UpdatePlayerStatus(Game_State.READY);
         MG.Create_Floor_Level();
+        Player.GetComponent<Player_Powers>().Reset_Level();
     }
 
     public void Select_Level()
     {
         floor_number_text.text = "Floor " + floor_num.ToString();
+        UpdatePlayerStatus(Game_State.SELECT);
+
+    }
+
+    public void Game_Over_Called()
+    {
+        foreach(GameObject g in GameObject.FindGameObjectsWithTag("Guard"))
+        {
+            g.GetComponent<Guard>().DisableGuard = true;
+
+        }
+        HasPlayerCaptured = true;
+        UpdatePlayerStatus(Game_State.CAPTURED);
+        Player.GetComponent<Player_Transition>().Player_Disabled();
+    }
+
+    public void Reset_Game()
+    {
+        floor_num = 0;
+        TotalTreasureValue = 0;
         UpdatePlayerStatus(Game_State.SELECT);
 
     }

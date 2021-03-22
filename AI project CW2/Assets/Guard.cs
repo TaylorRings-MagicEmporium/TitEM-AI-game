@@ -24,7 +24,14 @@ public class Guard : MonoBehaviour
     public float AngleLimit = 45.0f;
     public float val;
 
+    public float FirstZoneLimit = 7.5f;
+    public float SecondZoneLimit = 12.0f;
+    public float ThirdZoneLimit = 15.0f;
+
+
     Vector3 Canvas_diff;
+
+    public LineRenderer lr;
 
     public float MinimumLimit = 0.0f;
     public float MaximumLimit = 100.0f;
@@ -42,6 +49,9 @@ public class Guard : MonoBehaviour
 
     public bool TreasureStolen = false;
 
+    public bool DisableGuard = false;
+    public bool Debug_lines = true;
+
     public void Start()
     {
         gm = GameObject.FindGameObjectWithTag("Manager").GetComponent<gamemanager>();
@@ -55,6 +65,22 @@ public class Guard : MonoBehaviour
         currentStates = BehaviourStates.PATROL;
         prevStates = BehaviourStates.PATROL;
         StartCoroutine(Behaviour_State_Update());
+
+        if (Debug_lines)
+        {
+            lr = GetComponent<Access_Points>().Line_Renderer.GetComponent<LineRenderer>();
+            lr.SetPosition(1, Quaternion.Euler(0, AngleLimit, 0) * transform.forward * FirstZoneLimit); //positive extreme
+            lr.SetPosition(2, Quaternion.Euler(0, -AngleLimit, 0) * transform.forward * FirstZoneLimit); //negative extreme
+            lr.SetPosition(4, Quaternion.Euler(0, AngleLimit, 0) * transform.forward * SecondZoneLimit); //positive extreme
+            lr.SetPosition(5, Quaternion.Euler(0, -AngleLimit, 0) * transform.forward * SecondZoneLimit); //negative extreme
+            lr.SetPosition(7, Quaternion.Euler(0, AngleLimit, 0) * transform.forward * ThirdZoneLimit); //positive extreme
+            lr.SetPosition(8, Quaternion.Euler(0, -AngleLimit, 0) * transform.forward * ThirdZoneLimit); //negative extreme
+        }
+        else
+        {
+            GetComponent<Access_Points>().Line_Renderer.SetActive(false);
+        }
+
 
     }
 
@@ -83,40 +109,47 @@ public class Guard : MonoBehaviour
 
         while (true)
         {
-            float len = (Player.transform.position - transform.position).magnitude;
-            if (len <= 15.0f)
+            if (!Player.GetComponent<Player_Powers>().InvisibilityOn)
             {
-                float dot = Vector3.Dot((Player.transform.position - transform.position).normalized, transform.forward);
-                val = dot;
-                if (dot > Mathf.Cos(AngleLimit))
+                float len = (Player.transform.position - transform.position).magnitude;
+                if (len <= 15.0f)
                 {
-                    RaycastHit hit;
-                    if (Physics.Raycast(transform.position, Player.transform.position - transform.position, out hit, len))
+                    float dot = Vector3.Dot((Player.transform.position - transform.position).normalized, transform.forward);
+                    val = dot;
+                    if (dot > Mathf.Cos(AngleLimit))
                     {
-                        if (hit.transform.CompareTag("Player"))
+                        RaycastHit hit;
+                        if (Physics.Raycast(transform.position, Player.transform.position - transform.position, out hit, len))
                         {
-                            if (hit.distance <= 5.0f)
+                            if (hit.transform.CompareTag("Player"))
                             {
-                                //increase 3x
-                                GuardSuspisionLevel += 27.0f;
+                                if (hit.distance <= FirstZoneLimit)
+                                {
+                                    //increase 3x
+                                    GuardSuspisionLevel += 27.0f;
 
-                            }
-                            else if (hit.distance <= 10.0f)
-                            {
-                                // increase 2x
-                                GuardSuspisionLevel += 13.0f;
+                                }
+                                else if (hit.distance <= SecondZoneLimit)
+                                {
+                                    // increase 2x
+                                    GuardSuspisionLevel += 16.0f;
 
+                                }
+                                else
+                                {
+                                    //increase 1x
+                                    GuardSuspisionLevel += 7.0f;
+
+                                }
+
+                                if (GuardSuspisionLevel > MaximumLimit)
+                                {
+                                    GuardSuspisionLevel = 100.0f;
+                                }
                             }
                             else
                             {
-                                //increase 1x
-                                GuardSuspisionLevel += 7.0f;
-
-                            }
-
-                            if (GuardSuspisionLevel > MaximumLimit)
-                            {
-                                GuardSuspisionLevel = 100.0f;
+                                DecreaseGuardLevel();
                             }
                         }
                         else
@@ -126,28 +159,21 @@ public class Guard : MonoBehaviour
                     }
                     else
                     {
-                        DecreaseGuardLevel();
+                        if (len <= 3.0)
+                        {
+                            GuardSuspisionLevel += 2.0f;
+                        }
+                        else
+                        {
+                            DecreaseGuardLevel();
+                        }
                     }
                 }
                 else
                 {
-                    if(len <= 3.0)
-                    {
-                        GuardSuspisionLevel += 2.0f;
-                    }
-                    else
-                    {
-                        DecreaseGuardLevel();
-                    }
+                    DecreaseGuardLevel();
                 }
-
-
             }
-            else
-            {
-                DecreaseGuardLevel();
-            }
-
             if (!TreasureStolen)
             {
 
@@ -171,8 +197,6 @@ public class Guard : MonoBehaviour
                 }
             }
 
-
-
             yield return new WaitForSeconds(0.5f);
         }
 
@@ -180,11 +204,19 @@ public class Guard : MonoBehaviour
 
     void DecreaseGuardLevel()
     {
-        GuardSuspisionLevel -= 2.0f;
-        if (GuardSuspisionLevel < MinimumLimit)
+        if(currentStates == BehaviourStates.CHASE)
         {
-            GuardSuspisionLevel = MinimumLimit;
+            GuardSuspisionLevel -= 4.0f;
         }
+        else
+        {
+            GuardSuspisionLevel -= 2.0f;
+            if (GuardSuspisionLevel < MinimumLimit)
+            {
+                GuardSuspisionLevel = MinimumLimit;
+            }
+        }
+
     }
 
     IEnumerator Behaviour_State_Update()
@@ -296,6 +328,7 @@ public class Guard : MonoBehaviour
             if (Vector3.Distance(gu.transform.position, transform.position) <= 15.0f)
             {
                 gu.GetComponent<Guard>().AlertGuard();
+
             }
         }
 
@@ -328,7 +361,16 @@ public class Guard : MonoBehaviour
     {
         if (collision.transform.CompareTag("Player"))
         {
-            GuardSuspisionLevel += 60.0f;
+            if(currentStates == BehaviourStates.CHASE && !DisableGuard)
+            {
+                gm.Game_Over_Called();
+                //DisableGuard = true;
+            }
+            else
+            {
+                GuardSuspisionLevel += 60.0f;
+            }
+
         }
     }
 

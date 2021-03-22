@@ -10,6 +10,7 @@ public class Player_Transition : MonoBehaviour
         GetComponent<TransformMove>().enabled = false;
         GetComponent<Rigidbody>().isKinematic = true;
         GetComponent<ItemCollecter>().enabled = false;
+        GetComponent<Player_Powers>().enabled = false;
     }
 
     public void Player_Enabled()
@@ -18,5 +19,7 @@ public class Player_Transition : MonoBehaviour
         GetComponent<TransformMove>().enabled = true;
         GetComponent<Rigidbody>().isKinematic = false;
         GetComponent<ItemCollecter>().enabled = true;
+        GetComponent<Player_Powers>().enabled = true;
+
     }
 }
