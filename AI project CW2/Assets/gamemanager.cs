@@ -23,15 +23,11 @@ public class gamemanager : MonoBehaviour
     public enum Game_State {SELECT, READY, GAME, ESCAPED, CAPTURED };
     public Game_State Current_Game_State;
 
-    public GameObject ready_screen;
-    public GameObject game_screen;
-    public GameObject result_screen;
-    public GameObject select_screen;
-    public GameObject Over_screen;
     int floor_num = 0;
     public Text floor_number_text;
 
     public MazeGenerator MG;
+    public ScreenSwitcher SS;
     public GameObject Player;
     public Image PowerBar;
 
@@ -39,6 +35,7 @@ public class gamemanager : MonoBehaviour
     {
         treasureValues.text = "treasures:\n$000";
         MG = GetComponent<MazeGenerator>();
+        SS = GetComponent<ScreenSwitcher>();
         StartCoroutine(CheckTotalSusLevel());
         UpdatePlayerStatus(Game_State.SELECT);
         Player = GameObject.FindGameObjectWithTag("Player");
@@ -116,49 +113,29 @@ public class gamemanager : MonoBehaviour
     public void UpdatePlayerStatus(Game_State state)
     {
         Current_Game_State = state;
-        if(Current_Game_State == Game_State.ESCAPED)
+        if(Current_Game_State == Game_State.ESCAPED) //result
         {
-            ready_screen.SetActive(false);
-            result_screen.SetActive(true);
-            game_screen.SetActive(false);
-            select_screen.SetActive(false);
-            Over_screen.SetActive(false);
+            SS.ActivateScreen("result");
             floor_num += 1;
 
-        } else if(Current_Game_State == Game_State.GAME)
+        } else if(Current_Game_State == Game_State.GAME) // game
         {
-            ready_screen.SetActive(false);
-            result_screen.SetActive(false);
-            game_screen.SetActive(true);
-            select_screen.SetActive(false);
-            Over_screen.SetActive(false);
+            SS.ActivateScreen("game");
 
         }
-        else if(Current_Game_State == Game_State.READY)
+        else if(Current_Game_State == Game_State.READY) // ready
         {
-            ready_screen.SetActive(true);
-            result_screen.SetActive(false);
-            game_screen.SetActive(false);
-            select_screen.SetActive(false);
-            Over_screen.SetActive(false);
+            SS.ActivateScreen("ready");
 
         }
-        else if(Current_Game_State == Game_State.SELECT)
+        else if(Current_Game_State == Game_State.SELECT) //select
         {
-            ready_screen.SetActive(false);
-            result_screen.SetActive(false);
-            game_screen.SetActive(false);
-            select_screen.SetActive(true);
-            Over_screen.SetActive(false);
+            SS.ActivateScreen("select");
 
             floor_number_text.text = "Floor " + floor_num;
-        } else if(Current_Game_State == Game_State.CAPTURED)
+        } else if(Current_Game_State == Game_State.CAPTURED)// over
         {
-            ready_screen.SetActive(false);
-            result_screen.SetActive(false);
-            game_screen.SetActive(false);
-            select_screen.SetActive(false);
-            Over_screen.SetActive(true);
+            SS.ActivateScreen("over");
         }
     }
 

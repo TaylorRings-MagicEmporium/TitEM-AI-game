@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6909966874338660619}
   - component: {fileID: 5321893735584826950}
   - component: {fileID: 295939681718823209}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Left_Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -119,7 +119,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9148240299488322503}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Left_Wall_Point
   m_TagString: Untagged
   m_Icon: {fileID: 0}

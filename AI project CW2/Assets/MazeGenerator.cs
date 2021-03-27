@@ -43,6 +43,8 @@ public class MazeGenerator : MonoBehaviour
     public int GuardsToWalk = 2;
     public int wayPointsInPath = 3;
 
+    public int RoomsInFloor = 24;
+
     enum Dir
     {
         UP, RIGHT, DOWN, LEFT
@@ -170,7 +172,7 @@ public class MazeGenerator : MonoBehaviour
 
             }
 
-            if (NumOfRooms >= (GridSizeX * GridSizeY) / 2)
+            if (NumOfRooms >= RoomsInFloor)
             {
                 Condition = false;
             }

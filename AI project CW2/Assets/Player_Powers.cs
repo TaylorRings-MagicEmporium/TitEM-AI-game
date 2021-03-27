@@ -7,7 +7,6 @@ public class Player_Powers : MonoBehaviour
     public float currentPowerLevel = 0;
     public float MaxPowerLevel = 100;
     public float PowerDropMultiplyer = 5;
-    bool MapScopeAvaliable = true;
 
     public bool InvisibilityOn = false;
     public ParticleSystem ps;

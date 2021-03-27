@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8870129006130199488}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Up_Wall_Point
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 3238238060077828105}
   - component: {fileID: 7880213457109241298}
   - component: {fileID: 655765655067403154}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Up_Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}

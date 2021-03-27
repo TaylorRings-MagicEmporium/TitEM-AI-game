@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 521949187008115642}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Down_Wall_Point
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 832066320592359902}
   - component: {fileID: 8200711425816183928}
   - component: {fileID: 2548362581440148881}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Down_Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}

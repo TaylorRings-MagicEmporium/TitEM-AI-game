@@ -8,6 +8,7 @@ TagManager:
   - Guard
   - Treasure
   - Manager
+  - Screen
   layers:
   - Default
   - TransparentFX
@@ -18,8 +19,8 @@ TagManager:
   - 
   - 
   - PostProcessing
-  - 
-  - 
+  - Render
+  - Don't Render
   - 
   - 
   - 
