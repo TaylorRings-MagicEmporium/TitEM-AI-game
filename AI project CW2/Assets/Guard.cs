@@ -336,10 +336,11 @@ public class Guard : MonoBehaviour
             }
         }
 
+
         while (true)
         {
             agent.SetDestination(g.transform.position);
-
+            agent.updateRotation = true;
 
             yield return new WaitForSeconds(0.5f);
         }

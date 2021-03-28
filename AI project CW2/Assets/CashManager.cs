@@ -27,6 +27,8 @@ public class CashManager : MonoBehaviour
     public Text VisMoneyFromFloor;
     public Text VisTotalMoney;
 
+
+    public Text GameOverTotal;
     bool finish = false;
     Coroutine ListValuesRunner;
 
@@ -77,6 +79,11 @@ public class CashManager : MonoBehaviour
         Reset_Game();
     }
 
+    public void DisplayFinalValue()
+    {
+        GameOverTotal.text = "Total Earned: \n$" + TotalMoney;
+    }
+
     IEnumerator ListValues()
     {
         int b = TotalRecieved.Count;
@@ -85,7 +92,7 @@ public class CashManager : MonoBehaviour
             MoneyNameValue curr = TotalRecieved.Dequeue();
             Debug.Log(curr.dest);
             MoneyDescription.text += curr.dest + "\n";
-            MoneyAmount.text += curr.val + "\n";
+            MoneyAmount.text += "$" + curr.val + "\n";
             yield return new WaitForSeconds(0.5f);
         }
 
@@ -96,7 +103,7 @@ public class CashManager : MonoBehaviour
             finish = true;
         }
 
-        VisMoneyFromFloor.text = "Money Earned: + " + MoneyEarnedFloor;
-        VisTotalMoney.text = "money in total: " + TotalMoney;
+        VisMoneyFromFloor.text = "Money Earned: + $" + MoneyEarnedFloor;
+        VisTotalMoney.text = "money in total: $" + TotalMoney;
     }
 }

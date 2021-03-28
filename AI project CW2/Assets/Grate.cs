@@ -9,6 +9,8 @@ public class Grate : MonoBehaviour
     //bool Entering = true;
     bool PlayerOnGrate = false;
 
+    bool StillGoing = false;
+
     Animator ani;
    // Animation ani_clip;
     // Start is called before the first frame update
@@ -21,12 +23,12 @@ public class Grate : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && gm.Current_Game_State == gamemanager.Game_State.READY)
+        if (Input.GetKeyDown(KeyCode.Space) && gm.Current_Game_State == gamemanager.Game_State.READY && !StillGoing)
         {
             //play entering animation
             StartCoroutine(Animation_entering_play());
         }
-        else if (Input.GetKeyDown(KeyCode.Space) && gm.Current_Game_State == gamemanager.Game_State.GAME && PlayerOnGrate && gm.ExitCondition)
+        else if (Input.GetKeyDown(KeyCode.Space) && gm.Current_Game_State == gamemanager.Game_State.GAME && PlayerOnGrate && gm.ExitCondition && !StillGoing)
         {
             //play exit animation
             StartCoroutine(Animation_exiting_play());
@@ -56,20 +58,23 @@ public class Grate : MonoBehaviour
     IEnumerator Animation_entering_play()
     {
         //GameObject.FindGameObjectWithTag("Player").GetComponent<Player_Transition>().Player_Disabled();
+        StillGoing = true;
         ani.SetTrigger("changeState");
         yield return new WaitForSeconds(1);
         GameObject.FindGameObjectWithTag("Player").GetComponent<Player_Transition>().Player_Enabled();
         GameObject.FindGameObjectWithTag("Manager").GetComponent<gamemanager>().UpdatePlayerStatus(gamemanager.Game_State.GAME);
+        StillGoing = false;
     }
 
     IEnumerator Animation_exiting_play()
     {
+        StillGoing = true;
         GameObject.FindGameObjectWithTag("Player").GetComponent<Player_Transition>().Player_Disabled();
 
         ani.SetTrigger("changeState");
         yield return new WaitForSeconds(1);
         GameObject.FindGameObjectWithTag("Manager").GetComponent<gamemanager>().UpdatePlayerStatus(gamemanager.Game_State.ESCAPED);
-
+        StillGoing = false;
     }
 }
 

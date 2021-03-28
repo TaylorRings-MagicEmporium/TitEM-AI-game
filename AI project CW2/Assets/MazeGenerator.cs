@@ -42,7 +42,6 @@ public class MazeGenerator : MonoBehaviour
     public int MinTreasureAmount = 0;
     public int MaxTreasureAmount = 0;
 
-
     public int GuardsToStand = 1;
     public int GuardsToWalk = 2;
     public int wayPointsInPath = 3;
@@ -50,13 +49,13 @@ public class MazeGenerator : MonoBehaviour
     public int RoomsInFloor = 24;
 
     public Camera Mini_map_renderer;
-    public Vector2 FullRadius = new Vector2(30, 30);
+    public Vector2 FullRadius = new Vector2(60, 60);
     public float FullSize = 35;
 
-    public Vector2 minRadius = new Vector2(0, 0);
-    public Vector2 maxRadius = new Vector2(0, 0);
-    public Vector2 FloorRadius = new Vector2(0, 0);
-    public float FloorSize = 0;
+    Vector2 minRadius = new Vector2(0, 0);
+    Vector2 maxRadius = new Vector2(0, 0);
+    Vector2 FloorRadius = new Vector2(0, 0);
+    float FloorSize = 0;
     int CurrentNumberOfRooms;
 
     enum Dir
@@ -524,9 +523,15 @@ public class MazeGenerator : MonoBehaviour
         SetupFloor();
     }
 
-    public void Create_Floor_Level()
+    public void Reset_Floor_Level()
     {
         ResetFloor();
+    }
+
+
+    public void Create_Floor_Level()
+    {
+        //ResetFloor();
         GenerateFloor();
         AdjustMapRenderer();
         PlacePlayer();

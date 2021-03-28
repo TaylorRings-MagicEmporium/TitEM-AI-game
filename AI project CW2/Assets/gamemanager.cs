@@ -10,8 +10,8 @@ public class gamemanager : MonoBehaviour
 
     public Text LevelState;
 
-    bool HasFloorBuilt = false;
-    bool HasPlayerCaptured = false;
+    //bool HasFloorBuilt = false;
+    //bool HasPlayerCaptured = false;
     public bool HasPlayerBeenChased = false;
     int treasureCount = 0;
 
@@ -30,6 +30,14 @@ public class gamemanager : MonoBehaviour
 
     public GameObject Player;
     public Image PowerBar;
+
+    bool FirstLevelShow = true;
+    bool SecondLevelShow = false;
+    bool ThirdLevelShow = false;
+
+    public Text FloorLevel1;
+    public Text FloorLevel2;
+    public Text FloorLevel3;
 
     void Start()
     {
@@ -116,7 +124,7 @@ public class gamemanager : MonoBehaviour
 
     public void UpdateFloorStatus(bool state)
     {
-        HasFloorBuilt = state;
+        //HasFloorBuilt = state;
     }
 
     public void UpdatePlayerStatus(Game_State state)
@@ -130,6 +138,15 @@ public class gamemanager : MonoBehaviour
             treasureCount = 0;
             ExitCondition = false;
             HasPlayerBeenChased = false;
+
+            if(FirstLevelShow && SecondLevelShow)
+            {
+                ThirdLevelShow = true;
+            } else if (FirstLevelShow)
+            {
+                SecondLevelShow = true;
+            }
+
             floor_num += 1;
 
         } else if(Current_Game_State == Game_State.GAME) // game
@@ -145,12 +162,32 @@ public class gamemanager : MonoBehaviour
         else if(Current_Game_State == Game_State.SELECT) //select
         {
             CM.FinishSummary();
+            MG.Reset_Floor_Level();
             SS.ActivateScreen("select");
+
+            if(ThirdLevelShow && SecondLevelShow && FirstLevelShow)
+            {
+                FloorLevel3.transform.parent.gameObject.SetActive(true);
+                FloorLevel3.text = "Floor " + (floor_num + 2) + "\n\nDifficulty:\n" + (difficultyScale + 0.09f);
+                FloorLevel2.text = "Floor " + (floor_num + 1) + "\n\nDifficulty:\n" + (difficultyScale + 0.06f);
+                FloorLevel1.text = "Floor " + floor_num + "\n\nDifficulty:\n" + (difficultyScale + 0.03f);
+            } else if(SecondLevelShow && FirstLevelShow){
+                FloorLevel2.transform.parent.gameObject.SetActive(true);
+                FloorLevel2.text = "Floor " + (floor_num + 1) + "\n\nDifficulty:\n" + (difficultyScale + 0.06f);
+                FloorLevel1.text = "Floor " + floor_num + "\n\nDifficulty:\n" + (difficultyScale + 0.03f);
+            }
+            else
+            {
+                FloorLevel1.text = "Floor " + floor_num + "\n\nDifficulty:\n" + (difficultyScale + 0.03f);
+                FloorLevel2.transform.parent.gameObject.SetActive(false);
+                FloorLevel3.transform.parent.gameObject.SetActive(false);
+            }
 
             floor_number_text.text = "Floor " + floor_num;
         } else if(Current_Game_State == Game_State.CAPTURED)// over
         {
             SS.ActivateScreen("over");
+            CM.DisplayFinalValue();
         }
     }
 
@@ -184,7 +221,7 @@ public class gamemanager : MonoBehaviour
             g.GetComponent<Guard>().DisableGuard = true;
 
         }
-        HasPlayerCaptured = true;
+        //HasPlayerCaptured = true;
         UpdatePlayerStatus(Game_State.CAPTURED);
         Player.GetComponent<Player_Transition>().Player_Disabled();
     }
@@ -193,15 +230,43 @@ public class gamemanager : MonoBehaviour
     {
         floor_num = 0;
         treasureCount = 0;
+        CM.Reset_Game();
+        MG.Reset_Floor_Level();
         UpdatePlayerStatus(Game_State.SELECT);
+        SecondLevelShow = false;
+        ThirdLevelShow = false;
+    }
 
+    public void AddDifficulty(float value)
+    {
+        difficultyScale += value;
+        UpdatePlayerStatus(Game_State.READY);
+        treasureCount = 0;
+        MG.MinTreasureAmount = (int)(20.0f * difficultyScale);
+        MG.MaxTreasureAmount = (int)(50.0f * difficultyScale);
+        int numOfRooms = (int)(10.0f * difficultyScale * 1.2);
+        if (numOfRooms > (MG.GridSizeX * MG.GridSizeY) - 6)
+        {
+            numOfRooms = (MG.GridSizeX * MG.GridSizeY) - 6;
+        }
+        if(MG.MinTreasureAmount > 450)
+        {
+            MG.MinTreasureAmount = 450;
+        }
+        if(MG.MaxTreasureAmount > 500)
+        {
+            MG.MaxTreasureAmount = 500;
+        }
+        MG.RoomsInFloor = numOfRooms;
+        MG.Create_Floor_Level();
+        Player.GetComponent<Player_Powers>().Reset_Level();
     }
 
     public void EndLevelConditions()
     {
         if(Player.GetComponent<Player_Powers>().currentPowerLevel > Player.GetComponent<Player_Powers>().MaxPowerLevel * 0.9f)
         {
-            CM.AddMoney("Little power used!", (int)(70 * difficultyScale));
+            CM.AddMoney("Little power used!", (int)(25 * difficultyScale));
         }
         if(treasureCount == MG.TreasureRooms)
         {
@@ -210,7 +275,7 @@ public class gamemanager : MonoBehaviour
         if (!HasPlayerBeenChased)
         {
             Debug.Log("called");
-            CM.AddMoney("Haven't Been Chased!", (int)(55 * difficultyScale));
+            CM.AddMoney("Haven't Been Chased!", (int)(50 * difficultyScale));
         }
     }
 
