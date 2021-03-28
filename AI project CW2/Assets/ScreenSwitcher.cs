@@ -10,10 +10,11 @@ public class ScreenSwitcher : MonoBehaviour
     //string currScreen = "";
 
     // Start is called before the first frame update
-    void Start()
+    public void Self_Start()
     {
         foreach(GameObject g in GameObject.FindGameObjectsWithTag("Screen"))
         {
+            Debug.Log("what");
             AllScreens[g.GetComponent<ScreenSwitchObject>().screenName] = g.GetComponent<CanvasGroup>();
             AllScreens[g.GetComponent<ScreenSwitchObject>().screenName].alpha = 0;
             AllScreens[g.GetComponent<ScreenSwitchObject>().screenName].interactable = false;

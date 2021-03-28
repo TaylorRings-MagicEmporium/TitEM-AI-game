@@ -15,7 +15,7 @@ public class ItemCollecter : MonoBehaviour
             if (!ti.IsTreasureTaken())
             {
                 //other.GetComponent<Collider>().enabled = false;
-                gm.AddTreasureValue(ti.value);
+                gm.AddTreasureValue(ti.TresName,ti.value);
                 ti.TreasureTakenUpdate();
             }
 

@@ -26,14 +26,14 @@ public class Grate : MonoBehaviour
             //play entering animation
             StartCoroutine(Animation_entering_play());
         }
-        else if (Input.GetKeyDown(KeyCode.Space) && gm.Current_Game_State == gamemanager.Game_State.GAME && PlayerOnGrate)
+        else if (Input.GetKeyDown(KeyCode.Space) && gm.Current_Game_State == gamemanager.Game_State.GAME && PlayerOnGrate && gm.ExitCondition)
         {
             //play exit animation
             StartCoroutine(Animation_exiting_play());
         }
-        if(Input.GetKeyDown(KeyCode.Space) && PlayerOnGrate)
+        else if(Input.GetKeyDown(KeyCode.Space) && gm.Current_Game_State == gamemanager.Game_State.GAME && PlayerOnGrate)
         {
-            Debug.Log("TRUE");
+            Debug.Log("Collect one more treasure to exit!");
         }
     }
 

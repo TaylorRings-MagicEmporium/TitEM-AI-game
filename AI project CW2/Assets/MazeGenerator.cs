@@ -39,11 +39,25 @@ public class MazeGenerator : MonoBehaviour
     public List<FloorNode> TreasureNodes = new List<FloorNode>();
     List<GameObject> TreasureItems = new List<GameObject>();
 
+    public int MinTreasureAmount = 0;
+    public int MaxTreasureAmount = 0;
+
+
     public int GuardsToStand = 1;
     public int GuardsToWalk = 2;
     public int wayPointsInPath = 3;
 
     public int RoomsInFloor = 24;
+
+    public Camera Mini_map_renderer;
+    public Vector2 FullRadius = new Vector2(30, 30);
+    public float FullSize = 35;
+
+    public Vector2 minRadius = new Vector2(0, 0);
+    public Vector2 maxRadius = new Vector2(0, 0);
+    public Vector2 FloorRadius = new Vector2(0, 0);
+    public float FloorSize = 0;
+    int CurrentNumberOfRooms;
 
     enum Dir
     {
@@ -88,7 +102,8 @@ public class MazeGenerator : MonoBehaviour
     {
         //starts a a random room
         FloorNode start = FloorMatrix[Random.Range(0, 6)][Random.Range(0, 6)];
-        //CurrentStartNode = start;
+        CurrentStartNode = start;
+        CurrentStartNode.IsStartingRoom = true;
         start.Used = true;
 
 
@@ -96,6 +111,10 @@ public class MazeGenerator : MonoBehaviour
         List<FloorNode> UnvisitedNodes = new List<FloorNode>();
         List<FloorNode> UsedNodes = new List<FloorNode>();
         UsedNodes.Add(start);
+        FloorRadius = new Vector2(start.transform.position.x, start.transform.position.z);
+        minRadius = new Vector2(start.transform.position.x, start.transform.position.z);
+        maxRadius = new Vector2(start.transform.position.x, start.transform.position.z);
+
         for (int i = 0; i < 4; i++)
         {
             if (start.GridConnectors[i] != null)
@@ -160,7 +179,23 @@ public class MazeGenerator : MonoBehaviour
             NextAdded.Used = true;
             UsedNodes.Add(NextAdded);
             NumOfRooms++;
-
+            FloorRadius += new Vector2(NextAdded.transform.position.x, NextAdded.transform.position.z);
+            if (NextAdded.transform.position.x > maxRadius.x)
+            {
+                maxRadius.x = NextAdded.transform.position.x;
+            }
+            if (NextAdded.transform.position.z > maxRadius.y)
+            {
+                maxRadius.y = NextAdded.transform.position.z;
+            }
+            if (NextAdded.transform.position.x < minRadius.x)
+            {
+                minRadius.x = NextAdded.transform.position.x;
+            }
+            if (NextAdded.transform.position.z < minRadius.y)
+            {
+                minRadius.y = NextAdded.transform.position.z;
+            }
             //finds rooms that have are connected to the new node, but not added to the list of unvisited nodes
             for (int i = 0; i < 4; i++)
             {
@@ -172,7 +207,7 @@ public class MazeGenerator : MonoBehaviour
 
             }
 
-            if (NumOfRooms >= RoomsInFloor)
+            if (NumOfRooms == RoomsInFloor)
             {
                 Condition = false;
             }
@@ -333,28 +368,21 @@ public class MazeGenerator : MonoBehaviour
             }
         }
 
-        AllFloorPaths = new List<FloorNode>(UsedNodes);
+        AllFloorPaths = new List<FloorNode>(UsedNodes); // all nodes used for the floor
 
         // the start location is randomised.
-        int ranStartPos = Random.Range(0, PossiblePlayerStarts.Count);
-        CurrentStartNode = PossiblePlayerStarts[ranStartPos];
+        //int ranStartPos = Random.Range(0, PossiblePlayerStarts.Count);
+        //CurrentStartNode = PossiblePlayerStarts[ranStartPos];
 
-        AllFloorPaths.Remove(CurrentStartNode);
-        PossiblePlayerStarts.RemoveAt(ranStartPos);
+        //AllFloorPaths.Remove(CurrentStartNode);
+        //PossiblePlayerStarts.RemoveAt(ranStartPos);
 
-        CurrentStartNode.IsStartingRoom = true;
+        //CurrentStartNode.IsStartingRoom = true;
         // deploying treasures by picking a random room
         for(int i = 0; i < TreasureRooms; i++)
         {
 
             int idx = Random.Range(0, PossiblePlayerStarts.Count);
-
-            //int idx = Random.Range(0, UsedNodes.Count);
-            //if(UsedNodes[idx] == CurrentStartNode)
-            //{
-            //    UsedNodes.RemoveAt(idx);
-            //    idx = Random.Range(0, UsedNodes.Count);
-            //}
 
             Debug.Log(PossiblePlayerStarts[idx].GridLoc);
             TreasureNodes.Add(PossiblePlayerStarts[idx]);
@@ -362,10 +390,10 @@ public class MazeGenerator : MonoBehaviour
 
             GameObject g = Instantiate(Treasure, TreasureNodes[i].transform.parent.position, Quaternion.identity);
             g.GetComponent<Treasure_Info>().NodeLoc = TreasureNodes[i];
+            g.GetComponent<Treasure_Info>().value = Random.Range(MinTreasureAmount, MaxTreasureAmount);
             TreasureItems.Add(g);
             PossiblePlayerStarts.RemoveAt(idx);
         }
-
     }
     
     // resets fllod data like the state of rooms, ALL walls and treasures. but it does not delete the original grid data.
@@ -468,8 +496,6 @@ public class MazeGenerator : MonoBehaviour
 
 
             }
-            //g.transform.position = g.GetComponent<Guard>().waypoints[0];
-            //g.transform.rotation = Quaternion.identity;
             g.GetComponent<Walking_Guard>().Start();
             g.GetComponent<Walking_Guard>().BeginWalking();
             g.GetComponent<Walking_Guard>().StartSuspision();
@@ -477,6 +503,19 @@ public class MazeGenerator : MonoBehaviour
 
 
        
+    }
+
+    public void AdjustMapRenderer()
+    {
+        Vector2 newPos = (maxRadius - minRadius) / 2;
+
+        Vector2 diff = maxRadius - minRadius + new Vector2(10,10);
+        diff /= (FullRadius + new Vector2(10,10));
+        Debug.Log(maxRadius - minRadius);
+        Debug.Log(Mathf.Max(diff.x, diff.y));
+        Mini_map_renderer.orthographicSize = FullSize * Mathf.Max(diff.x, diff.y) + 1;
+
+        Mini_map_renderer.transform.position = new Vector3(newPos.x+minRadius.x, 60.0f, newPos.y+minRadius.y);
     }
 
     // Start is called before the first frame update
@@ -489,6 +528,7 @@ public class MazeGenerator : MonoBehaviour
     {
         ResetFloor();
         GenerateFloor();
+        AdjustMapRenderer();
         PlacePlayer();
         PlaceGuards();
     }

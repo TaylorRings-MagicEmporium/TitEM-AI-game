@@ -128,6 +128,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   value: 500
   NodeLoc: {fileID: 0}
+  TresName: test_treasure
 --- !u!54 &8352001363570296397
 Rigidbody:
   m_ObjectHideFlags: 0

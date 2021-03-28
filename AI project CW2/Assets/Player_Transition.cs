@@ -11,6 +11,7 @@ public class Player_Transition : MonoBehaviour
         GetComponent<Rigidbody>().isKinematic = true;
         GetComponent<ItemCollecter>().enabled = false;
         GetComponent<Player_Powers>().enabled = false;
+        GetComponent<Collider>().enabled = false;
     }
 
     public void Player_Enabled()
@@ -20,6 +21,8 @@ public class Player_Transition : MonoBehaviour
         GetComponent<Rigidbody>().isKinematic = false;
         GetComponent<ItemCollecter>().enabled = true;
         GetComponent<Player_Powers>().enabled = true;
+        GetComponent<Collider>().enabled = true;
+
 
     }
 }

@@ -5,37 +5,38 @@ using UnityEngine.UI;
 
 public class gamemanager : MonoBehaviour
 {
-
-    public Text treasureValues;
-    public int TotalTreasureValue;
-
     public float PatrolToInvest = 45.0f;
     public float InvestToChase = 80.0f;
 
     public Text LevelState;
-    // Start is called before the first frame update
 
-    bool HasPlayerBegun = false;
     bool HasFloorBuilt = false;
-    bool HasPlayerEscaped = false;
     bool HasPlayerCaptured = false;
+    public bool HasPlayerBeenChased = false;
+    int treasureCount = 0;
+
+    public bool ExitCondition = false;
 
     public enum Game_State {SELECT, READY, GAME, ESCAPED, CAPTURED };
     public Game_State Current_Game_State;
 
     int floor_num = 0;
+    float difficultyScale = 1.0f;
     public Text floor_number_text;
 
     public MazeGenerator MG;
     public ScreenSwitcher SS;
+    public CashManager CM;
+
     public GameObject Player;
     public Image PowerBar;
 
     void Start()
     {
-        treasureValues.text = "treasures:\n$000";
         MG = GetComponent<MazeGenerator>();
         SS = GetComponent<ScreenSwitcher>();
+        SS.Self_Start();
+        CM = GetComponent<CashManager>();
         StartCoroutine(CheckTotalSusLevel());
         UpdatePlayerStatus(Game_State.SELECT);
         Player = GameObject.FindGameObjectWithTag("Player");
@@ -49,13 +50,17 @@ public class gamemanager : MonoBehaviour
         {
             PowerBar.fillAmount = (float)Player.GetComponent<Player_Powers>().currentPowerLevel / (float)Player.GetComponent<Player_Powers>().MaxPowerLevel;
         }
+
+        if (!ExitCondition && Current_Game_State == Game_State.GAME)
+        {
+            CheckExitCondition();
+        }
     }
 
-    public void AddTreasureValue(int amount)
-    {
-        Debug.Log(amount);
-        TotalTreasureValue += amount;
-        treasureValues.text = "treasures:\n$" + TotalTreasureValue.ToString();
+    public void AddTreasureValue(string tresName, int amount)
+    { 
+        CM.AddMoney(tresName, amount);
+        treasureCount++;
     }
 
     IEnumerator CheckTotalSusLevel()
@@ -70,6 +75,10 @@ public class gamemanager : MonoBehaviour
                 if (gg.GuardSuspisionLevel > HighestLevel)
                 {
                     HighestLevel = gg.GuardSuspisionLevel;
+                }
+                if(gg.currentStates == Guard.BehaviourStates.CHASE)
+                {
+                    HasPlayerBeenChased = true;
                 }
             }
 
@@ -115,7 +124,12 @@ public class gamemanager : MonoBehaviour
         Current_Game_State = state;
         if(Current_Game_State == Game_State.ESCAPED) //result
         {
+            EndLevelConditions();
             SS.ActivateScreen("result");
+            CM.DisplayMoneySummary();
+            treasureCount = 0;
+            ExitCondition = false;
+            HasPlayerBeenChased = false;
             floor_num += 1;
 
         } else if(Current_Game_State == Game_State.GAME) // game
@@ -130,6 +144,7 @@ public class gamemanager : MonoBehaviour
         }
         else if(Current_Game_State == Game_State.SELECT) //select
         {
+            CM.FinishSummary();
             SS.ActivateScreen("select");
 
             floor_number_text.text = "Floor " + floor_num;
@@ -142,6 +157,15 @@ public class gamemanager : MonoBehaviour
     public void Start_Level()
     {
         UpdatePlayerStatus(Game_State.READY);
+        treasureCount = 0;
+        MG.MinTreasureAmount = (int)(30.0f * difficultyScale);
+        MG.MaxTreasureAmount = (int)(60.0f * difficultyScale);
+        int numOfRooms = (int)(10.0f * difficultyScale * 1.2);
+        if(numOfRooms > (MG.GridSizeX * MG.GridSizeY)-7)
+        {
+            numOfRooms = (MG.GridSizeX * MG.GridSizeY) - 7;
+        }
+        MG.RoomsInFloor = numOfRooms;
         MG.Create_Floor_Level();
         Player.GetComponent<Player_Powers>().Reset_Level();
     }
@@ -168,8 +192,33 @@ public class gamemanager : MonoBehaviour
     public void Reset_Game()
     {
         floor_num = 0;
-        TotalTreasureValue = 0;
+        treasureCount = 0;
         UpdatePlayerStatus(Game_State.SELECT);
 
+    }
+
+    public void EndLevelConditions()
+    {
+        if(Player.GetComponent<Player_Powers>().currentPowerLevel > Player.GetComponent<Player_Powers>().MaxPowerLevel * 0.9f)
+        {
+            CM.AddMoney("Little power used!", (int)(70 * difficultyScale));
+        }
+        if(treasureCount == MG.TreasureRooms)
+        {
+            CM.AddMoney("Collect All Treasure!", (int)(40 * difficultyScale));
+        }
+        if (!HasPlayerBeenChased)
+        {
+            Debug.Log("called");
+            CM.AddMoney("Haven't Been Chased!", (int)(55 * difficultyScale));
+        }
+    }
+
+    public void CheckExitCondition()
+    {
+        if(treasureCount >= 1)
+        {
+            ExitCondition = true;
+        }
     }
 }

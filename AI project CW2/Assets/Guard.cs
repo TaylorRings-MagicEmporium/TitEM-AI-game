@@ -109,42 +109,49 @@ public class Guard : MonoBehaviour
 
         while (true)
         {
-            if (!Player.GetComponent<Player_Powers>().InvisibilityOn)
+            if(gm.Current_Game_State == gamemanager.Game_State.GAME)
             {
-                float len = (Player.transform.position - transform.position).magnitude;
-                if (len <= 15.0f)
+                if (!Player.GetComponent<Player_Powers>().InvisibilityOn)
                 {
-                    float dot = Vector3.Dot((Player.transform.position - transform.position).normalized, transform.forward);
-                    val = dot;
-                    if (dot > Mathf.Cos(AngleLimit))
+                    float len = (Player.transform.position - transform.position).magnitude;
+                    if (len <= 15.0f)
                     {
-                        RaycastHit hit;
-                        if (Physics.Raycast(transform.position, Player.transform.position - transform.position, out hit, len))
+                        float dot = Vector3.Dot((Player.transform.position - transform.position).normalized, transform.forward);
+                        val = dot;
+                        if (dot > Mathf.Cos(AngleLimit))
                         {
-                            if (hit.transform.CompareTag("Player"))
+                            RaycastHit hit;
+                            if (Physics.Raycast(transform.position, Player.transform.position - transform.position, out hit, len))
                             {
-                                if (hit.distance <= FirstZoneLimit)
+                                if (hit.transform.CompareTag("Player"))
                                 {
-                                    //increase 3x
-                                    GuardSuspisionLevel += 27.0f;
+                                    if (hit.distance <= FirstZoneLimit)
+                                    {
+                                        //increase 3x
+                                        GuardSuspisionLevel += 27.0f;
 
-                                }
-                                else if (hit.distance <= SecondZoneLimit)
-                                {
-                                    // increase 2x
-                                    GuardSuspisionLevel += 16.0f;
+                                    }
+                                    else if (hit.distance <= SecondZoneLimit)
+                                    {
+                                        // increase 2x
+                                        GuardSuspisionLevel += 16.0f;
 
+                                    }
+                                    else
+                                    {
+                                        //increase 1x
+                                        GuardSuspisionLevel += 7.0f;
+
+                                    }
+
+                                    if (GuardSuspisionLevel > MaximumLimit)
+                                    {
+                                        GuardSuspisionLevel = 100.0f;
+                                    }
                                 }
                                 else
                                 {
-                                    //increase 1x
-                                    GuardSuspisionLevel += 7.0f;
-
-                                }
-
-                                if (GuardSuspisionLevel > MaximumLimit)
-                                {
-                                    GuardSuspisionLevel = 100.0f;
+                                    DecreaseGuardLevel();
                                 }
                             }
                             else
@@ -154,50 +161,47 @@ public class Guard : MonoBehaviour
                         }
                         else
                         {
-                            DecreaseGuardLevel();
+                            if (len <= 3.0)
+                            {
+                                GuardSuspisionLevel += 2.0f;
+                            }
+                            else
+                            {
+                                DecreaseGuardLevel();
+                            }
                         }
                     }
                     else
                     {
-                        if (len <= 3.0)
-                        {
-                            GuardSuspisionLevel += 2.0f;
-                        }
-                        else
-                        {
-                            DecreaseGuardLevel();
-                        }
+                        DecreaseGuardLevel();
                     }
                 }
-                else
+                if (!TreasureStolen)
                 {
-                    DecreaseGuardLevel();
-                }
-            }
-            if (!TreasureStolen)
-            {
 
-                RaycastHit hitT;
-                if (Physics.Raycast(transform.position, transform.forward, out hitT, 15.0f))
-                {
-                    if (hitT.transform.CompareTag("Treasure"))
+                    RaycastHit hitT;
+                    if (Physics.Raycast(transform.position, transform.forward, out hitT, 15.0f))
                     {
-                        float dot = Vector3.Dot((hitT.transform.position - transform.position).normalized, transform.forward);
-                        if(dot > Mathf.Cos(AngleLimit))
+                        if (hitT.transform.CompareTag("Treasure"))
                         {
-                            if (hitT.transform.GetComponent<Treasure_Info>().IsTreasureTaken())
+                            float dot = Vector3.Dot((hitT.transform.position - transform.position).normalized, transform.forward);
+                            if (dot > Mathf.Cos(AngleLimit))
                             {
-                                // the treasure is taken! alert all guards!
-                                gm.TreasureTakenRiseAlerts();
-                                Debug.Log("TREASURE TAKEN");
+                                if (hitT.transform.GetComponent<Treasure_Info>().IsTreasureTaken())
+                                {
+                                    // the treasure is taken! alert all guards!
+                                    gm.TreasureTakenRiseAlerts();
+                                    Debug.Log("TREASURE TAKEN");
+                                }
                             }
-                        }
 
+                        }
                     }
                 }
-            }
 
+            }
             yield return new WaitForSeconds(0.5f);
+
         }
 
     }
