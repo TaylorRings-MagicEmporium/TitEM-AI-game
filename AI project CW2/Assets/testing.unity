@@ -6277,7 +6277,7 @@ MonoBehaviour:
   priority: 0
   blendDistance: 0
   weight: 1
-  sharedProfile: {fileID: 11400000, guid: 64d0a8af6f49caf40ba9a93ecc9f9714, type: 2}
+  sharedProfile: {fileID: 11400000, guid: 2801c2ff7303a7543a8727f862f6c236, type: 2}
 --- !u!4 &1617982956
 Transform:
   m_ObjectHideFlags: 0
@@ -8548,7 +8548,7 @@ PrefabInstance:
     - target: {fileID: 128267490187002417, guid: 697a3ccfdee9a2b4193391587c6cf3a4,
         type: 3}
       propertyPath: PowerDropMultiplyer
-      value: 20
+      value: 33
       objectReference: {fileID: 0}
     - target: {fileID: 4499567584322421122, guid: 697a3ccfdee9a2b4193391587c6cf3a4,
         type: 3}

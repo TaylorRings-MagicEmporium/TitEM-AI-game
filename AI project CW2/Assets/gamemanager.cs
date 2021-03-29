@@ -193,18 +193,26 @@ public class gamemanager : MonoBehaviour
 
     public void Start_Level()
     {
-        UpdatePlayerStatus(Game_State.READY);
-        treasureCount = 0;
-        MG.MinTreasureAmount = (int)(30.0f * difficultyScale);
-        MG.MaxTreasureAmount = (int)(60.0f * difficultyScale);
-        int numOfRooms = (int)(10.0f * difficultyScale * 1.2);
-        if(numOfRooms > (MG.GridSizeX * MG.GridSizeY)-7)
-        {
-            numOfRooms = (MG.GridSizeX * MG.GridSizeY) - 7;
-        }
-        MG.RoomsInFloor = numOfRooms;
-        MG.Create_Floor_Level();
-        Player.GetComponent<Player_Powers>().Reset_Level();
+        //UpdatePlayerStatus(Game_State.READY);
+        //treasureCount = 0;
+        //MG.MinTreasureAmount = (int)(30.0f * difficultyScale);
+        //MG.MaxTreasureAmount = (int)(60.0f * difficultyScale);
+
+        //int temp = Mathf.FloorToInt((difficultyScale - 1) /0.1f);
+        //temp = 0;
+        //MG.GuardsToWalk = temp;
+        //Debug.Log("hi " + MG.GuardsToWalk);
+
+        //MG.GuardsToStand = 1;
+
+        //int numOfRooms = (int)(10.0f * difficultyScale * 1.2);
+        //if(numOfRooms > (MG.GridSizeX * MG.GridSizeY)-7)
+        //{
+        //    numOfRooms = (MG.GridSizeX * MG.GridSizeY) - 7;
+        //}
+        //MG.RoomsInFloor = numOfRooms;
+        //MG.Create_Floor_Level();
+        //Player.GetComponent<Player_Powers>().Reset_Level();
     }
 
     public void Select_Level()
@@ -235,6 +243,7 @@ public class gamemanager : MonoBehaviour
         UpdatePlayerStatus(Game_State.SELECT);
         SecondLevelShow = false;
         ThirdLevelShow = false;
+        difficultyScale = 1;
     }
 
     public void AddDifficulty(float value)
@@ -244,7 +253,7 @@ public class gamemanager : MonoBehaviour
         treasureCount = 0;
         MG.MinTreasureAmount = (int)(20.0f * difficultyScale);
         MG.MaxTreasureAmount = (int)(50.0f * difficultyScale);
-        int numOfRooms = (int)(10.0f * difficultyScale * 1.2);
+        int numOfRooms = (int)(10.0f * difficultyScale * 1.5);
         if (numOfRooms > (MG.GridSizeX * MG.GridSizeY) - 6)
         {
             numOfRooms = (MG.GridSizeX * MG.GridSizeY) - 6;
@@ -258,6 +267,12 @@ public class gamemanager : MonoBehaviour
             MG.MaxTreasureAmount = 500;
         }
         MG.RoomsInFloor = numOfRooms;
+
+        int temp = Mathf.FloorToInt((difficultyScale - 1) / 0.12f);
+        MG.GuardsToWalk = temp;
+        //Debug.Log("hi " + MG.GuardsToWalk);
+
+
         MG.Create_Floor_Level();
         Player.GetComponent<Player_Powers>().Reset_Level();
     }

@@ -369,15 +369,6 @@ public class MazeGenerator : MonoBehaviour
 
         AllFloorPaths = new List<FloorNode>(UsedNodes); // all nodes used for the floor
 
-        // the start location is randomised.
-        //int ranStartPos = Random.Range(0, PossiblePlayerStarts.Count);
-        //CurrentStartNode = PossiblePlayerStarts[ranStartPos];
-
-        //AllFloorPaths.Remove(CurrentStartNode);
-        //PossiblePlayerStarts.RemoveAt(ranStartPos);
-
-        //CurrentStartNode.IsStartingRoom = true;
-        // deploying treasures by picking a random room
         for(int i = 0; i < TreasureRooms; i++)
         {
 
@@ -485,6 +476,11 @@ public class MazeGenerator : MonoBehaviour
             g.AddComponent<Walking_Guard>();
             g.GetComponent<Walking_Guard>().Waypoint = true;
 
+            if(FloorPaths.Count < wayPointsInPath)
+            {
+                break;
+            }
+
             for (int i = 0; i < wayPointsInPath; i++)
             {
                 int chos = Random.Range(0, FloorPaths.Count);
@@ -500,8 +496,6 @@ public class MazeGenerator : MonoBehaviour
             g.GetComponent<Walking_Guard>().StartSuspision();
         }
 
-
-       
     }
 
     public void AdjustMapRenderer()
