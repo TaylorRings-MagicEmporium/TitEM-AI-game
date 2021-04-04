@@ -39,6 +39,8 @@ public class gamemanager : MonoBehaviour
     public Text FloorLevel2;
     public Text FloorLevel3;
 
+    public Text GameOver_Floor;
+
     void Start()
     {
         MG = GetComponent<MazeGenerator>();
@@ -147,7 +149,7 @@ public class gamemanager : MonoBehaviour
                 SecondLevelShow = true;
             }
 
-            floor_num += 1;
+            //floor_num += 1;
 
         } else if(Current_Game_State == Game_State.GAME) // game
         {
@@ -178,46 +180,24 @@ public class gamemanager : MonoBehaviour
             }
             else
             {
+                //Debug.Log("pear: " + difficultyScale);
                 FloorLevel1.text = "Floor " + floor_num + "\n\nDifficulty:\n" + (difficultyScale + 0.03f);
                 FloorLevel2.transform.parent.gameObject.SetActive(false);
                 FloorLevel3.transform.parent.gameObject.SetActive(false);
             }
 
-            floor_number_text.text = "Floor " + floor_num;
+            //floor_number_text.text = "Floor " + floor_num;
         } else if(Current_Game_State == Game_State.CAPTURED)// over
         {
             SS.ActivateScreen("over");
+            GameOver_Floor.text = "Floor Captured:\n" + floor_num;
             CM.DisplayFinalValue();
         }
     }
 
-    public void Start_Level()
-    {
-        //UpdatePlayerStatus(Game_State.READY);
-        //treasureCount = 0;
-        //MG.MinTreasureAmount = (int)(30.0f * difficultyScale);
-        //MG.MaxTreasureAmount = (int)(60.0f * difficultyScale);
-
-        //int temp = Mathf.FloorToInt((difficultyScale - 1) /0.1f);
-        //temp = 0;
-        //MG.GuardsToWalk = temp;
-        //Debug.Log("hi " + MG.GuardsToWalk);
-
-        //MG.GuardsToStand = 1;
-
-        //int numOfRooms = (int)(10.0f * difficultyScale * 1.2);
-        //if(numOfRooms > (MG.GridSizeX * MG.GridSizeY)-7)
-        //{
-        //    numOfRooms = (MG.GridSizeX * MG.GridSizeY) - 7;
-        //}
-        //MG.RoomsInFloor = numOfRooms;
-        //MG.Create_Floor_Level();
-        //Player.GetComponent<Player_Powers>().Reset_Level();
-    }
-
     public void Select_Level()
     {
-        floor_number_text.text = "Floor " + floor_num.ToString();
+        //floor_number_text.text = "Floor " + floor_num.ToString();
         UpdatePlayerStatus(Game_State.SELECT);
 
     }
@@ -240,14 +220,32 @@ public class gamemanager : MonoBehaviour
         treasureCount = 0;
         CM.Reset_Game();
         MG.Reset_Floor_Level();
-        UpdatePlayerStatus(Game_State.SELECT);
+
         SecondLevelShow = false;
         ThirdLevelShow = false;
+        FloorLevel1.transform.parent.gameObject.SetActive(true);
+        FloorLevel2.transform.parent.gameObject.SetActive(false);
+        FloorLevel3.transform.parent.gameObject.SetActive(false);
         difficultyScale = 1;
+        UpdatePlayerStatus(Game_State.SELECT);
+
+        //Debug.Log("apple: " + difficultyScale);
     }
 
     public void AddDifficulty(float value)
     {
+        if(value == 0.09f)
+        {
+            floor_num += 3;
+        } else if(value == 0.06f)
+        {
+            floor_num += 2;
+        }
+        else
+        {
+            floor_num++;
+        }
+
         difficultyScale += value;
         UpdatePlayerStatus(Game_State.READY);
         treasureCount = 0;

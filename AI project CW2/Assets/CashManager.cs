@@ -90,7 +90,7 @@ public class CashManager : MonoBehaviour
         for(int i = 0; i < b; i++)
         {
             MoneyNameValue curr = TotalRecieved.Dequeue();
-            Debug.Log(curr.dest);
+            //Debug.Log(curr.dest);
             MoneyDescription.text += curr.dest + "\n";
             MoneyAmount.text += "$" + curr.val + "\n";
             yield return new WaitForSeconds(0.5f);

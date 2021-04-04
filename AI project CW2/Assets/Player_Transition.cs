@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class Player_Transition : MonoBehaviour
 {
+    public GameObject Model;
+
     public void Player_Disabled()
     {
-        GetComponent<MeshRenderer>().enabled = false;
+        Model.SetActive(false);
         GetComponent<TransformMove>().enabled = false;
         GetComponent<Rigidbody>().isKinematic = true;
         GetComponent<ItemCollecter>().enabled = false;
@@ -16,7 +18,7 @@ public class Player_Transition : MonoBehaviour
 
     public void Player_Enabled()
     {
-        GetComponent<MeshRenderer>().enabled = true;
+        Model.SetActive(true);
         GetComponent<TransformMove>().enabled = true;
         GetComponent<Rigidbody>().isKinematic = false;
         GetComponent<ItemCollecter>().enabled = true;

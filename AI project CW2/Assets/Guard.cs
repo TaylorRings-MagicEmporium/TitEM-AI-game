@@ -52,23 +52,27 @@ public class Guard : MonoBehaviour
     public bool DisableGuard = false;
     public bool Debug_lines = true;
 
-    public void Start()
-    {
-        gm = GameObject.FindGameObjectWithTag("Manager").GetComponent<gamemanager>();
+    protected Access_Points AP;
 
+    public void Start_Guard()
+    {
+
+        //Debug.Log("CALLED");
+        gm = GameObject.FindGameObjectWithTag("Manager").GetComponent<gamemanager>();
+        AP = GetComponent<Access_Points>();
 
         agent = GetComponent<NavMeshAgent>();
         Player = GameObject.FindGameObjectWithTag("Player");
-        Suspision_Meter = GetComponent<Access_Points>().Suspision_Meter;
+        Suspision_Meter = AP.Suspision_Meter;
 
-        Canvas_diff = GetComponent<Access_Points>().canvas.transform.position - transform.position;
+        Canvas_diff = AP.canvas.transform.position - transform.position;
         currentStates = BehaviourStates.PATROL;
         prevStates = BehaviourStates.PATROL;
         StartCoroutine(Behaviour_State_Update());
-
+        StartCoroutine(Behaviour_thoughts());
         if (Debug_lines)
         {
-            lr = GetComponent<Access_Points>().Line_Renderer.GetComponent<LineRenderer>();
+            lr = AP.Line_Renderer.GetComponent<LineRenderer>();
             lr.SetPosition(1, Quaternion.Euler(0, AngleLimit, 0) * transform.forward * FirstZoneLimit); //positive extreme
             lr.SetPosition(2, Quaternion.Euler(0, -AngleLimit, 0) * transform.forward * FirstZoneLimit); //negative extreme
             lr.SetPosition(4, Quaternion.Euler(0, AngleLimit, 0) * transform.forward * SecondZoneLimit); //positive extreme
@@ -78,13 +82,13 @@ public class Guard : MonoBehaviour
         }
         else
         {
-            GetComponent<Access_Points>().Line_Renderer.SetActive(false);
+            AP.Line_Renderer.SetActive(false);
         }
 
 
     }
 
-    public void Update()
+    private void Update()
     {
         if (turning)
         {
@@ -94,7 +98,7 @@ public class Guard : MonoBehaviour
 
         Suspision_Meter.GetComponent<Image>().fillAmount = (GuardSuspisionLevel / 100.0f);
 
-        GetComponent<Access_Points>().canvas.transform.position = transform.position + Canvas_diff;
+        AP.canvas.transform.position = transform.position + Canvas_diff;
 
         Behaviour_Response();
     }
@@ -203,7 +207,6 @@ public class Guard : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
 
         }
-
     }
 
     void DecreaseGuardLevel()
@@ -308,16 +311,20 @@ public class Guard : MonoBehaviour
     protected virtual void Begin_Patrol() { }
     protected virtual void Begin_Investigate() {
 
-        Debug.Log("INVESTIGATING");
+        //Debug.Log("INVESTIGATING");
+        turning = false;
         StopCoroutine(Current_Behaviour_Enum);
+        AP.Guard_ani.SetBool("IsMoving", false);
         Current_Behaviour_Enum = StartCoroutine(InvestigateArea());
 
     }
 
 
     protected virtual void Begin_Chase() {
-        Debug.Log("CHASING");
+        //Debug.Log("CHASING");
+        turning = false;
         StopCoroutine(Current_Behaviour_Enum);
+        AP.Guard_ani.SetBool("IsMoving", false);
         Current_Behaviour_Enum = StartCoroutine(ChasePlayer());
     }
 
@@ -336,7 +343,7 @@ public class Guard : MonoBehaviour
             }
         }
 
-
+        AP.Guard_ani.SetBool("IsMoving", true);
         while (true)
         {
             agent.SetDestination(g.transform.position);
@@ -344,6 +351,7 @@ public class Guard : MonoBehaviour
 
             yield return new WaitForSeconds(0.5f);
         }
+        AP.Guard_ani.SetBool("IsMoving", false);
     }
 
     IEnumerator InvestigateArea()
@@ -356,9 +364,19 @@ public class Guard : MonoBehaviour
             NavMeshHit navHit;
             NavMesh.SamplePosition(randomDirection, out navHit, 7.0f,-1);
 
+            AP.Guard_ani.SetBool("IsMoving", true);
             agent.SetDestination(navHit.position);
 
+            for(int i = 0; i < 5; i++)
+            {
+                if(Vector3.Distance(transform.position, navHit.position) < 0.1f)
+                {
+                    AP.Guard_ani.SetBool("IsMoving", false);
+                }
+                yield return new WaitForSeconds(0.5f);
+            }
             yield return new WaitForSeconds(2.5f);
+            AP.Guard_ani.SetBool("IsMoving", false);
         }
     }
 
@@ -381,7 +399,7 @@ public class Guard : MonoBehaviour
 
     public void AlertGuard()
     {
-        Debug.Log("ALERTED");
+        //Debug.Log("ALERTED");
         GuardSuspisionLevel += 60.0f;
     }
 
@@ -394,4 +412,37 @@ public class Guard : MonoBehaviour
             GuardSuspisionLevel = 45.0f;
         }
     }
+
+    IEnumerator Behaviour_thoughts()
+    {
+
+
+        Image thought_holder = AP.thought_holder.GetComponent<Image>();
+        int wait;
+        thought_holder.enabled = false;
+        while (true)
+        {
+            wait = 2;
+            if (thought_holder.enabled)
+            {
+                thought_holder.enabled = false;
+                wait = 3;
+            }
+            else
+            {
+                if (Random.Range(0, 10) > 5)
+                {
+                    thought_holder.sprite = AP.guard_thoughts[(int)currentStates];
+                    thought_holder.enabled = true;
+                    wait = 4;
+                }
+                else
+                {
+                    wait = 2;
+                }
+            }
+            yield return new WaitForSeconds(wait);
+        }
+    }
+
 }

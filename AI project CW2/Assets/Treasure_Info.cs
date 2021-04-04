@@ -9,10 +9,12 @@ public class Treasure_Info : MonoBehaviour
     public FloorNode NodeLoc;
     public string TresName;
 
+    public GameObject Treasure_Holder;
+
     public void TreasureTakenUpdate()
     {
         TreasureTaken = true;
-        Destroy(this.transform.GetChild(0).gameObject);
+        Destroy(Treasure_Holder);
     }
 
     public bool IsTreasureTaken()

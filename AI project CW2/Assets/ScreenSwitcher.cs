@@ -14,7 +14,7 @@ public class ScreenSwitcher : MonoBehaviour
     {
         foreach(GameObject g in GameObject.FindGameObjectsWithTag("Screen"))
         {
-            Debug.Log("what");
+            //Debug.Log("what");
             AllScreens[g.GetComponent<ScreenSwitchObject>().screenName] = g.GetComponent<CanvasGroup>();
             AllScreens[g.GetComponent<ScreenSwitchObject>().screenName].alpha = 0;
             AllScreens[g.GetComponent<ScreenSwitchObject>().screenName].interactable = false;
@@ -24,8 +24,8 @@ public class ScreenSwitcher : MonoBehaviour
 
     public void ActivateScreen(string n)
     {
-        Debug.Log(n);
-        Debug.Log(AllScreens.Count);
+        //Debug.Log(n);
+        //Debug.Log(AllScreens.Count);
         if(prevScreen != "")
         {
             AllScreens[prevScreen].alpha = 0;

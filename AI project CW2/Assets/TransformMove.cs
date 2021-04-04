@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class TransformMove : MonoBehaviour
 { 
-    Rigidbody rb;
+    public Rigidbody rb;
+
+    public Animator ani;
 
     public float AccMultiplyer = 1;
     public float VelocityLimit = 1;
@@ -12,6 +14,7 @@ public class TransformMove : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        //ani = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -43,12 +46,19 @@ public class TransformMove : MonoBehaviour
         if(tempForce == Vector3.zero)
         {
             rb.AddForce(-rb.velocity * AccMultiplyer);
+            ani.SetBool("IsMoving", false);
         }
         else
         {
             if(rb.velocity.magnitude <= VelocityLimit)
             {
                 rb.AddForce(tempForce * AccMultiplyer);
+                if(rb.velocity != Vector3.zero)
+                {
+                    ani.transform.rotation = Quaternion.LookRotation(rb.velocity, Vector3.up);
+                }
+
+                ani.SetBool("IsMoving", true);
             }
         }
     }

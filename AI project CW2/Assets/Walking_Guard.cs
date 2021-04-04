@@ -34,8 +34,6 @@ public class Walking_Guard : Guard
             rotateCounter = 0.0f;
             current = transform.rotation;
             target = current * Quaternion.Euler(0, 90f, 0);
-
-
             yield return new WaitForSeconds(1f);
             rotateCounter = 0.0f;
             current = transform.rotation;
@@ -71,6 +69,7 @@ public class Walking_Guard : Guard
             //agent.destination
 
             bool closeEnough = false;
+            AP.Guard_ani.SetBool("IsMoving", true);
             while (!closeEnough)
             {
                 //Debug.Log((transform.position - waypoints[waypoint_index]).magnitude);
@@ -80,6 +79,7 @@ public class Walking_Guard : Guard
                 }
                 yield return new WaitForSeconds(0.5f);
             }
+            AP.Guard_ani.SetBool("IsMoving", false);
         }
     }
 

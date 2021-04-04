@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Grate : MonoBehaviour
 {
@@ -8,16 +9,19 @@ public class Grate : MonoBehaviour
     gamemanager gm;
     //bool Entering = true;
     bool PlayerOnGrate = false;
-
     bool StillGoing = false;
 
-    Animator ani;
+    public Image lock_image;
+
+    Animator ani_grate;
+    public Animator ani_player;
    // Animation ani_clip;
     // Start is called before the first frame update
     void Start()
     {
         gm = GameObject.FindGameObjectWithTag("Manager").GetComponent<gamemanager>();
-        ani = GetComponent<Animator>();
+        ani_grate = GetComponent<Animator>();
+        lock_image.enabled = false;
     }
 
     // Update is called once per frame
@@ -35,7 +39,12 @@ public class Grate : MonoBehaviour
         }
         else if(Input.GetKeyDown(KeyCode.Space) && gm.Current_Game_State == gamemanager.Game_State.GAME && PlayerOnGrate)
         {
-            Debug.Log("Collect one more treasure to exit!");
+            ani_grate.SetTrigger("no entry");
+        }
+
+        if (gm.ExitCondition)
+        {
+            lock_image.enabled = false;
         }
     }
 
@@ -59,10 +68,12 @@ public class Grate : MonoBehaviour
     {
         //GameObject.FindGameObjectWithTag("Player").GetComponent<Player_Transition>().Player_Disabled();
         StillGoing = true;
-        ani.SetTrigger("changeState");
+        ani_grate.SetTrigger("changeState");
+        ani_player.SetTrigger("Do_Jump");
         yield return new WaitForSeconds(1);
         GameObject.FindGameObjectWithTag("Player").GetComponent<Player_Transition>().Player_Enabled();
         GameObject.FindGameObjectWithTag("Manager").GetComponent<gamemanager>().UpdatePlayerStatus(gamemanager.Game_State.GAME);
+        lock_image.enabled = true;
         StillGoing = false;
     }
 
@@ -70,10 +81,12 @@ public class Grate : MonoBehaviour
     {
         StillGoing = true;
         GameObject.FindGameObjectWithTag("Player").GetComponent<Player_Transition>().Player_Disabled();
-
-        ani.SetTrigger("changeState");
+        ani_player.SetTrigger("Do_Jump");
+        ani_grate.SetTrigger("changeState");
+        lock_image.enabled = false;
         yield return new WaitForSeconds(1);
         GameObject.FindGameObjectWithTag("Manager").GetComponent<gamemanager>().UpdatePlayerStatus(gamemanager.Game_State.ESCAPED);
+
         StillGoing = false;
     }
 }
