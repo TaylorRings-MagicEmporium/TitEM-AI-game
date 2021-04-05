@@ -25,6 +25,6 @@ public class title_script : MonoBehaviour
         ani.SetTrigger("continue");
         yield return new WaitForSeconds(4f);
         Debug.Log("done!");
-        //SceneManager.LoadScene("game scene");
+        SceneManager.LoadScene("game_scene");
     }
 }

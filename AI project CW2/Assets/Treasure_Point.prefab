@@ -50,6 +50,7 @@ MonoBehaviour:
   value: 500
   NodeLoc: {fileID: 0}
   TresName: test_treasure
+  l: {fileID: 4033341514983811028}
   Treasure_Holder: {fileID: 7848006717333082803}
 --- !u!54 &8352001363570296397
 Rigidbody:

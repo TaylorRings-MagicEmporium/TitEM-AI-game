@@ -21,7 +21,7 @@ public class gamemanager : MonoBehaviour
     public Game_State Current_Game_State;
 
     int floor_num = 0;
-    float difficultyScale = 1.0f;
+    public float difficultyScale = 1.0f;
     public Text floor_number_text;
 
     public MazeGenerator MG;
@@ -41,8 +41,11 @@ public class gamemanager : MonoBehaviour
 
     public Text GameOver_Floor;
 
+    public AudioSource AS;
+
     void Start()
     {
+        AS = GetComponent<AudioSource>();
         MG = GetComponent<MazeGenerator>();
         SS = GetComponent<ScreenSwitcher>();
         SS.Self_Start();
@@ -153,16 +156,19 @@ public class gamemanager : MonoBehaviour
 
         } else if(Current_Game_State == Game_State.GAME) // game
         {
+
             SS.ActivateScreen("game");
 
         }
         else if(Current_Game_State == Game_State.READY) // ready
         {
+            AS.Play();
             SS.ActivateScreen("ready");
 
         }
         else if(Current_Game_State == Game_State.SELECT) //select
         {
+            AS.Stop();
             CM.FinishSummary();
             MG.Reset_Floor_Level();
             SS.ActivateScreen("select");
@@ -267,6 +273,10 @@ public class gamemanager : MonoBehaviour
         MG.RoomsInFloor = numOfRooms;
 
         int temp = Mathf.FloorToInt((difficultyScale - 1) / 0.12f);
+        if(temp > 10)
+        {
+            temp = 10;
+        }
         MG.GuardsToWalk = temp;
         //Debug.Log("hi " + MG.GuardsToWalk);
 
