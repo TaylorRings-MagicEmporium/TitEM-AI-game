@@ -5,59 +5,77 @@ using UnityEngine.AI;
 using UnityEngine.UI;
 public class Guard : MonoBehaviour
 {
-
-    //public Vector2 GridPos;
-
+    // bools based on type of guard
     public bool Stand = false;
     public bool Waypoint = false;
 
+    // gets the agent for the guard and gets the player object
     protected NavMeshAgent agent;
     protected GameObject Player;
 
+    // deduces whether the enemy should be turning or not.
     protected bool turning = false;
+    
+    // used for lerping between previous rotation and new rotation.
     protected Quaternion current;
     protected Quaternion target;
+    
+    // incrementer for rotation
     protected float rotateCounter = 0;
 
+    // a value that depicts how suspicious the guard is
     public float GuardSuspisionLevel = 0.0f;
+    
+    // minimum and maximum limit on suspicion levels
+    public float MinimumLimit = 0.0f;
+    public float MaximumLimit = 100.0f;
 
+    // depicts how "wide" the guard can see
     public float AngleLimit = 45.0f;
     public float val;
 
+    // depicts the zones that the guard can see the player
     public float FirstZoneLimit = 7.5f;
     public float SecondZoneLimit = 12.0f;
     public float ThirdZoneLimit = 15.0f;
 
-
+    //canvas offset
     Vector3 Canvas_diff;
 
+    //used for debugging
     public LineRenderer lr;
 
-    public float MinimumLimit = 0.0f;
-    public float MaximumLimit = 100.0f;
-
+    //behaviour of a guard
     public enum BehaviourStates {PATROL, INVESTIGATE, CHASE };
     public BehaviourStates currentStates;
     BehaviourStates prevStates;
 
+    // active corountine that specifies the behaviour actions of the guard currently.
     protected Coroutine Current_Behaviour_Enum;
 
+    // is this a new behaviour for the guard (changed recently)
     bool StartBehaviour = false;
+    // visual representation of the suspicion level.
     public GameObject Suspision_Meter;
 
     gamemanager gm;
 
+    // has a treasure been stolen?
     public bool TreasureStolen = false;
 
+    // is the guard active based on game-manager's state
     public bool DisableGuard = false;
+
+    // should debug_lines be present?
     public bool Debug_lines = true;
 
+    // easy connection between gameobject and this script (as the script is a parent)
     protected Access_Points AP;
 
+    // initialises the guard to begin patrolling.
     public void Start_Guard()
     {
 
-        //Debug.Log("CALLED");
         gm = GameObject.FindGameObjectWithTag("Manager").GetComponent<gamemanager>();
         AP = GetComponent<Access_Points>();
 
@@ -68,8 +86,10 @@ public class Guard : MonoBehaviour
         Canvas_diff = AP.canvas.transform.position - transform.position;
         currentStates = BehaviourStates.PATROL;
         prevStates = BehaviourStates.PATROL;
-        StartCoroutine(Behaviour_State_Update());
-        StartCoroutine(Behaviour_thoughts());
+        StartCoroutine(Behaviour_State_Update()); // starts behaviour change
+        StartCoroutine(Behaviour_thoughts()); // start visually showing guard's thoughts
+
+        // if true, then output regions where the player is seen
         if (Debug_lines)
         {
             lr = AP.Line_Renderer.GetComponent<LineRenderer>();
@@ -88,110 +108,116 @@ public class Guard : MonoBehaviour
 
     }
 
+    // runs every frame
     private void Update()
     {
-        if (turning)
+        // if turning is true, then perform a smooth transition from one quaternion to another based on an incrementer.
+        if (turning) 
         {
             transform.rotation = Quaternion.Slerp(current, target, rotateCounter);
             rotateCounter += 0.05f;
         }
 
+        // update the visuals of suspicion's level
         Suspision_Meter.GetComponent<Image>().fillAmount = (GuardSuspisionLevel / 100.0f);
 
+        // constantly make canvas appear above guard at the same rotation.
         AP.canvas.transform.position = transform.position + Canvas_diff;
 
         Behaviour_Response();
     }
 
+    // begins the AI suspicion manager. 
     public void StartSuspision()
     {
         StartCoroutine(SuspisionManager());
     }
 
+    // calculates and determines the suspicion level based on numerious conditions.
     public IEnumerator SuspisionManager()
     {
 
         while (true)
         {
-            if(gm.Current_Game_State == gamemanager.Game_State.GAME)
+            if(gm.Current_Game_State == gamemanager.Game_State.GAME) // if the game-manager state is in gameplay...
             {
-                if (!Player.GetComponent<Player_Powers>().InvisibilityOn)
+                if (!Player.GetComponent<Player_Powers>().InvisibilityOn) // if invisiblity is not on...
                 {
                     float len = (Player.transform.position - transform.position).magnitude;
-                    if (len <= 15.0f)
+                    if (len <= 15.0f) // if the player is within distance of this guard...
                     {
                         float dot = Vector3.Dot((Player.transform.position - transform.position).normalized, transform.forward);
                         val = dot;
-                        if (dot > Mathf.Cos(AngleLimit))
+                        if (dot > Mathf.Cos(AngleLimit)) // if the player is within eye sight of this guard...
                         {
                             RaycastHit hit;
-                            if (Physics.Raycast(transform.position, Player.transform.position - transform.position, out hit, len))
+                            if (Physics.Raycast(transform.position, Player.transform.position - transform.position, out hit, len)) // if the guard can see something...
                             {
-                                if (hit.transform.CompareTag("Player"))
+                                if (hit.transform.CompareTag("Player")) // if that object is the player itself, then add an amount of the guard suspicion level
                                 {
-                                    if (hit.distance <= FirstZoneLimit)
+                                    if (hit.distance <= FirstZoneLimit) // the closest zone
                                     {
                                         //increase 3x
                                         GuardSuspisionLevel += 27.0f;
 
                                     }
-                                    else if (hit.distance <= SecondZoneLimit)
+                                    else if (hit.distance <= SecondZoneLimit) // the midway zone
                                     {
                                         // increase 2x
                                         GuardSuspisionLevel += 16.0f;
 
                                     }
-                                    else
+                                    else // the fartherest zone
                                     {
                                         //increase 1x
                                         GuardSuspisionLevel += 7.0f;
 
                                     }
 
-                                    if (GuardSuspisionLevel > MaximumLimit)
+                                    if (GuardSuspisionLevel > MaximumLimit) // limits the suspicion level to the max it can be
                                     {
                                         GuardSuspisionLevel = 100.0f;
                                     }
                                 }
                                 else
                                 {
-                                    DecreaseGuardLevel();
+                                    DecreaseGuardLevel(); // decrease the guard level
                                 }
                             }
                             else
                             {
-                                DecreaseGuardLevel();
+                                DecreaseGuardLevel(); // decrease the guard level
                             }
                         }
                         else
                         {
-                            if (len <= 3.0)
+                            if (len <= 5.0f) // if the player is still close to the guard, then classify it as "hearing" something
                             {
                                 GuardSuspisionLevel += 2.0f;
                             }
                             else
                             {
-                                DecreaseGuardLevel();
+                                DecreaseGuardLevel(); // decrease the guard level
                             }
                         }
                     }
                     else
                     {
-                        DecreaseGuardLevel();
+                        DecreaseGuardLevel(); // decrease the guard level
                     }
                 }
-                if (!TreasureStolen)
+                if (!TreasureStolen) // if a treasure has not been detected to be stolen yet...
                 {
 
                     RaycastHit hitT;
                     if (Physics.Raycast(transform.position, transform.forward, out hitT, 15.0f))
                     {
-                        if (hitT.transform.CompareTag("Treasure"))
+                        if (hitT.transform.CompareTag("Treasure")) // if the hit object was the treasure collider...
                         {
                             float dot = Vector3.Dot((hitT.transform.position - transform.position).normalized, transform.forward);
-                            if (dot > Mathf.Cos(AngleLimit))
+                            if (dot > Mathf.Cos(AngleLimit)) // if the treasure collider is within the guard's sight...
                             {
-                                if (hitT.transform.GetComponent<Treasure_Info>().IsTreasureTaken())
+                                if (hitT.transform.GetComponent<Treasure_Info>().IsTreasureTaken()) // if the treasure has been stolen, then alert all guards
                                 {
                                     // the treasure is taken! alert all guards!
                                     gm.TreasureTakenRiseAlerts();
@@ -209,11 +235,12 @@ public class Guard : MonoBehaviour
         }
     }
 
+    // decreases the suspicion level based on the current behaviour state
     void DecreaseGuardLevel()
     {
         if(currentStates == BehaviourStates.CHASE)
         {
-            GuardSuspisionLevel -= 4.0f;
+            GuardSuspisionLevel -= 2.5f;
         }
         else
         {
@@ -226,6 +253,7 @@ public class Guard : MonoBehaviour
 
     }
 
+    // determines what the behaviour should be based on the suspicion levels
     IEnumerator Behaviour_State_Update()
     {
         while (true)
@@ -235,7 +263,7 @@ public class Guard : MonoBehaviour
             {
                 case BehaviourStates.PATROL:
 
-                    if (GuardSuspisionLevel > gm.PatrolToInvest)
+                    if (GuardSuspisionLevel > gm.PatrolToInvest) // if the level has risen to the investigation stage, then update behaviour
                     {
                         currentStates = BehaviourStates.INVESTIGATE;
                     }
@@ -243,11 +271,11 @@ public class Guard : MonoBehaviour
                     break;
                 case BehaviourStates.INVESTIGATE:
 
-                    if (GuardSuspisionLevel > gm.InvestToChase)
+                    if (GuardSuspisionLevel > gm.InvestToChase) // if the level has risen to the chase stage, then update behaviour
                     {
                         currentStates = BehaviourStates.CHASE;
                     }
-                    else if (GuardSuspisionLevel < gm.PatrolToInvest)
+                    else if (GuardSuspisionLevel < gm.PatrolToInvest) // if the level has lowered to the patrol stage, then update behaviour
                     {
                         currentStates = BehaviourStates.PATROL;
                     }
@@ -255,7 +283,7 @@ public class Guard : MonoBehaviour
                     break;
                 case BehaviourStates.CHASE:
 
-                    if (GuardSuspisionLevel < gm.InvestToChase)
+                    if (GuardSuspisionLevel < gm.InvestToChase) // if the level has lowered to the investigation stage, then update behaviour
                     {
                         currentStates = BehaviourStates.INVESTIGATE;
                     }
@@ -263,7 +291,7 @@ public class Guard : MonoBehaviour
                     break;
             }
 
-            if(prevStates != currentStates)
+            if(prevStates != currentStates) // if the behaviour has changed, then set the bool for appropriate action
             {
                 StartBehaviour = true;
             }
@@ -272,43 +300,37 @@ public class Guard : MonoBehaviour
         }
     }
 
+    // begins certain functions to setup the behaviour actions
     public void Behaviour_Response()
     {
-        switch (currentStates)
+        if (StartBehaviour)
         {
-            case BehaviourStates.PATROL:
+            switch (currentStates)
+            {
+                case BehaviourStates.PATROL:
 
-                if (StartBehaviour)
-                {
                     Begin_Patrol();
-                    StartBehaviour = false;
-                }
+                    break;
 
-                break;
-            case BehaviourStates.INVESTIGATE:
+                case BehaviourStates.INVESTIGATE:
 
-                if (StartBehaviour)
-                {
                     Begin_Investigate();
-                    StartBehaviour = false;
+                    break;
 
-                }
+                case BehaviourStates.CHASE:
 
-                break;
-            case BehaviourStates.CHASE:
-
-                if (StartBehaviour)
-                {
                     Begin_Chase();
-                    StartBehaviour = false;
-
-                }
-
-                break;
+                    break;
+            }
+            StartBehaviour = false;
         }
+
     }
 
+    // virtual function for beginning patrols (based on type of guard)
     protected virtual void Begin_Patrol() { }
+
+    // virtual function for beginning investigations
     protected virtual void Begin_Investigate() {
 
         //Debug.Log("INVESTIGATING");
@@ -319,7 +341,7 @@ public class Guard : MonoBehaviour
 
     }
 
-
+    // virtual function for beginning chasing
     protected virtual void Begin_Chase() {
         //Debug.Log("CHASING");
         turning = false;
@@ -328,37 +350,41 @@ public class Guard : MonoBehaviour
         Current_Behaviour_Enum = StartCoroutine(ChasePlayer());
     }
 
+    // chases the player to try and catch them
     IEnumerator ChasePlayer()
     {
 
         GameObject g = GameObject.FindGameObjectWithTag("Player");
 
         List<GameObject> listOfGuards = new List<GameObject>(GameObject.FindGameObjectsWithTag("Guard"));
-        foreach (GameObject gu in listOfGuards)
+        foreach (GameObject gu in listOfGuards) 
         {
             if (Vector3.Distance(gu.transform.position, transform.position) <= 15.0f)
             {
-                gu.GetComponent<Guard>().AlertGuard();
+                gu.GetComponent<Guard>().AlertGuard(); // alerts all guards within range about chasing the player.
 
             }
         }
 
-        AP.Guard_ani.SetBool("IsMoving", true);
+        AP.Guard_ani.SetBool("IsMoving", true); // set animation to walk
         while (true)
         {
-            agent.SetDestination(g.transform.position);
+            agent.SetDestination(g.transform.position); // sets the position to the player's position.
             agent.updateRotation = true;
 
             yield return new WaitForSeconds(0.5f);
         }
-        AP.Guard_ani.SetBool("IsMoving", false);
+        //AP.Guard_ani.SetBool("IsMoving", false);
     }
 
+    // investigate the area where the player might be (encourages the player to always move)
     IEnumerator InvestigateArea()
     {
         Position_Status ac = GameObject.FindGameObjectWithTag("Player").GetComponent<Position_Status>();
+        
         while (true)
         {
+            // this part chooses a random position based on a sphere radius around a deplayed position of the player
             Vector3 randomDirection = Random.insideUnitSphere * 7.0f;
             randomDirection += ac.GetPos();
             NavMeshHit navHit;
@@ -375,21 +401,22 @@ public class Guard : MonoBehaviour
                 }
                 yield return new WaitForSeconds(0.5f);
             }
-            yield return new WaitForSeconds(2.5f);
+            yield return new WaitForSeconds(2f);
             AP.Guard_ani.SetBool("IsMoving", false);
         }
     }
 
+    // when a collision is detected...
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.transform.CompareTag("Player"))
+        if (collision.transform.CompareTag("Player")) // if it was the player...
         {
-            if(currentStates == BehaviourStates.CHASE && !DisableGuard)
+            if(currentStates == BehaviourStates.CHASE && !DisableGuard) // and the guard is in chase mode, then game over is called as the guard has captured the player
             {
                 gm.Game_Over_Called();
                 //DisableGuard = true;
             }
-            else
+            else // if not, alert the guard that it just been touched
             {
                 GuardSuspisionLevel += 60.0f;
             }
@@ -397,22 +424,25 @@ public class Guard : MonoBehaviour
         }
     }
 
+    // when called by a nearby chasing guard, increase the sispicion level
     public void AlertGuard()
     {
         //Debug.Log("ALERTED");
         GuardSuspisionLevel += 60.0f;
     }
 
+    // if a treasure has been stolen and has been detected by a guard, then alert the guard
     public void TreasureStolenAlert()
     {
         TreasureStolen = true;
-        MinimumLimit += 40.0f;
+        MinimumLimit += 40.0f; // the minimum limit of the suspicion will be increased as there is missing treasure.
         if(GuardSuspisionLevel < MinimumLimit)
         {
             GuardSuspisionLevel = 45.0f;
         }
     }
 
+    // for visual representation of the current behaviour, a thought bubble will appear
     IEnumerator Behaviour_thoughts()
     {
 
@@ -420,6 +450,7 @@ public class Guard : MonoBehaviour
         Image thought_holder = AP.thought_holder.GetComponent<Image>();
         int wait;
         thought_holder.enabled = false;
+        // randomly waits for time to make the thoughts more authentic
         while (true)
         {
             wait = 2;

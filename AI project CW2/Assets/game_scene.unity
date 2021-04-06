@@ -7303,7 +7303,6 @@ MonoBehaviour:
   ExitCondition: 0
   Current_Game_State: 0
   difficultyScale: 1
-  floor_number_text: {fileID: 0}
   MG: {fileID: 0}
   SS: {fileID: 0}
   CM: {fileID: 0}
@@ -7357,9 +7356,9 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 084719549e67c48468e0fc64aa77ee06, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.101
+  m_Volume: 0.066
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
