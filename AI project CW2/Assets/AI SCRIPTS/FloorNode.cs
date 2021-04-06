@@ -66,7 +66,6 @@ public class FloorNode : MonoBehaviour
         Used = false;
         IsTreasureRoom = false;
         IsStartingRoom = false;
-        //TresureTaken = false;
         ChangeFloor(true);
     }
 }

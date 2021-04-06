@@ -95,9 +95,9 @@ public class gamemanager : MonoBehaviour
             foreach (GameObject g in GameObject.FindGameObjectsWithTag("Guard"))
             {
                 Guard gg = g.GetComponent<Guard>();
-                if (gg.GuardSuspisionLevel > HighestLevel)
+                if (gg.GuardSuspicionLevel > HighestLevel)
                 {
-                    HighestLevel = gg.GuardSuspisionLevel;
+                    HighestLevel = gg.GuardSuspicionLevel;
                 }
                 if(gg.currentStates == Guard.BehaviourStates.CHASE)
                 {
@@ -112,12 +112,12 @@ public class gamemanager : MonoBehaviour
             }
             else if (HighestLevel > 50.0f)
             {
-                LevelState.text = "suspision";
+                LevelState.text = "suspicious!";
 
             }
             else if (HighestLevel > 25.0f)
             {
-                LevelState.text = "slight";
+                LevelState.text = "noticed!";
 
             }
             else

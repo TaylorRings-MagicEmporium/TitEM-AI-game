@@ -126,6 +126,7 @@ public class MazeGenerator : MonoBehaviour
         // the typical algorithm has been extended to connecting paths with it's surrounding and adding wall awareness
 
         // pre-starts Prim's by adding starting node's surrounding rooms
+
         for (int i = 0; i < 4; i++)
         {
             if (start.GridConnectors[i] != null)
@@ -474,7 +475,7 @@ public class MazeGenerator : MonoBehaviour
             g.GetComponent<Standing_Guard>().StandingPoint = PossRooms[chosen].transform.parent.position + new Vector3(0, 1.5f, 0); // gives a guard a standing point for the floor
             g.GetComponent<Standing_Guard>().Stand = true; // parent identifier on what type guard is
             g.GetComponent<Standing_Guard>().BeginTurning(); // starts the guard's AI movement
-            g.GetComponent<Standing_Guard>().StartSuspision(); // starting the guard's AI behaviour
+            g.GetComponent<Standing_Guard>().StartSuspicion(); // starting the guard's AI behaviour
             PossRooms.RemoveAt(chosen); // removes the rooms so no duplicate guard.
 
         }
@@ -507,7 +508,7 @@ public class MazeGenerator : MonoBehaviour
             }
             g.GetComponent<Walking_Guard>().Start_Guard(); // initialises the guard
             g.GetComponent<Walking_Guard>().BeginWalking(); // start's the guard's AI movement
-            g.GetComponent<Walking_Guard>().StartSuspision(); // start's the guard's AI behaviour
+            g.GetComponent<Walking_Guard>().StartSuspicion(); // start's the guard's AI behaviour
         }
 
     }

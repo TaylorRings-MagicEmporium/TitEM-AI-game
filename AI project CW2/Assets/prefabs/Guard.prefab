@@ -877,8 +877,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a11e34863e3c0e441bb7a64c42eb971a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Suspision_Display: {fileID: 1732805878}
-  Suspision_Meter: {fileID: 1646189334}
+  Suspicion_Display: {fileID: 1732805878}
+  Suspicion_Meter: {fileID: 1646189334}
   canvas: {fileID: 1436092741}
   Line_Renderer: {fileID: 4947902584872846634}
   thought_holder: {fileID: 2503822012707004150}

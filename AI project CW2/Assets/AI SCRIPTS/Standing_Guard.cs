@@ -15,6 +15,13 @@ public class Standing_Guard : Guard
     // describes how the Guard rotates
     IEnumerator WaypointTurning()
     {
+        agent.SetDestination(StandingPoint);
+        while (Vector3.Distance(transform.position,StandingPoint) > 1f)
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        AP.Guard_ani.SetBool("IsMoving", false);
         while (true)
         {
             turning = true;
