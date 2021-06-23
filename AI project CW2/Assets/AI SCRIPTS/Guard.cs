@@ -67,7 +67,7 @@ public class Guard : MonoBehaviour
     public bool DisableGuard = false;
 
     // should debug_lines be present?
-    public bool Debug_lines = true;
+    public bool Debug_lines;
 
     // easy connection between gameobject and this script (as the script is a parent)
     protected Access_Points AP;
@@ -78,7 +78,7 @@ public class Guard : MonoBehaviour
 
         gm = GameObject.FindGameObjectWithTag("Manager").GetComponent<gamemanager>();
         AP = GetComponent<Access_Points>();
-
+        Debug_lines = AP.Debug;
         agent = GetComponent<NavMeshAgent>();
         Player = GameObject.FindGameObjectWithTag("Player");
         Suspicion_Meter = AP.Suspicion_Meter;

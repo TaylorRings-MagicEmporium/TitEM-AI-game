@@ -13,6 +13,8 @@ public class Access_Points : MonoBehaviour
     public GameObject thought_holder;
     public List<Sprite> guard_thoughts = new List<Sprite>();
 
+    public bool Debug = false;
+
     public Animator Guard_ani;
 
 }
