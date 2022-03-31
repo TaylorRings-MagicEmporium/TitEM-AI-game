@@ -63,19 +63,19 @@ public class Guard : MonoBehaviour
     // has a treasure been stolen?
     public bool TreasureStolen = false;
 
-    // is the guard active based on game-manager's state
+    // is the guard active based on game-manager's state?
     public bool DisableGuard = false;
 
     // should debug_lines be present?
     public bool Debug_lines;
 
-    // easy connection between gameobject and this script (as the script is a parent)
+    // class containing gameobjects related to displaying guard info.
     protected Access_Points AP;
 
     // initialises the guard to begin patrolling.
     public void Start_Guard()
     {
-
+        // attaches the Guard to the gamemanager
         gm = GameObject.FindGameObjectWithTag("Manager").GetComponent<gamemanager>();
         AP = GetComponent<Access_Points>();
         Debug_lines = AP.Debug;
@@ -89,7 +89,7 @@ public class Guard : MonoBehaviour
         StartCoroutine(Behaviour_State_Update()); // starts behaviour change
         StartCoroutine(Behaviour_thoughts()); // start visually showing guard's thoughts
 
-        // if true, then output regions where the player is seen
+        // if true, then output regions where the player is seen via Debug
         if (Debug_lines)
         {
             lr = AP.Line_Renderer.GetComponent<LineRenderer>();
@@ -104,8 +104,6 @@ public class Guard : MonoBehaviour
         {
             AP.Line_Renderer.SetActive(false);
         }
-
-
     }
 
     // runs every frame
@@ -354,8 +352,6 @@ public class Guard : MonoBehaviour
     IEnumerator ChasePlayer()
     {
 
-        GameObject g = GameObject.FindGameObjectWithTag("Player");
-
         List<GameObject> listOfGuards = new List<GameObject>(GameObject.FindGameObjectsWithTag("Guard"));
         foreach (GameObject gu in listOfGuards) 
         {
@@ -369,18 +365,17 @@ public class Guard : MonoBehaviour
         AP.Guard_ani.SetBool("IsMoving", true); // set animation to walk
         while (true)
         {
-            agent.SetDestination(g.transform.position); // sets the position to the player's position.
+            agent.SetDestination(Player.transform.position); // sets the position to the player's position.
             agent.updateRotation = true;
 
             yield return new WaitForSeconds(0.5f);
         }
-        //AP.Guard_ani.SetBool("IsMoving", false);
     }
 
     // investigate the area where the player might be (encourages the player to always move)
     IEnumerator InvestigateArea()
     {
-        Position_Status ac = GameObject.FindGameObjectWithTag("Player").GetComponent<Position_Status>();
+        Position_Status ac = Player.GetComponent<Position_Status>();
         
         while (true)
         {

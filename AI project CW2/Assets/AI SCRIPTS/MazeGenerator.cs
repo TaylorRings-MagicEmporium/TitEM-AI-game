@@ -8,6 +8,9 @@ public class MazeGenerator : MonoBehaviour
     public int GridSizeX = 6;
     public int GridSizeY = 6;
 
+    List<List<int>> stateFloorMatrix = new List<List<int>>();
+
+
     // 2D metrix of all floors.
     List<List<FloorNode>> FloorMatrix = new List<List<FloorNode>>();
 
