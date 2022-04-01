@@ -324,7 +324,7 @@ public class MazeGenerator : MonoBehaviour
                         if (!FloorMatrix[a][b].GridConnectors[(int)Dir.UP].WallPlaced[(int)Dir.DOWN])
                         {
                             // then spawn a wall and alert both rooms that there is a wall there. this is to prevent to walls spawning in the same place and reduces resources.
-                            g = Instantiate(Up_Wall, FloorMatrix[a][b].transform.parent.position, Quaternion.identity);
+                            g = Instantiate(Up_Wall, FloorMatrix[a][b].transform.position, Quaternion.identity);
 
                             FloorMatrix[a][b].GridConnectors[(int)Dir.UP].WallPlaced[(int)Dir.DOWN] = true;
                             FloorMatrix[a][b].WallPlaced[(int)Dir.UP] = true;
@@ -336,7 +336,7 @@ public class MazeGenerator : MonoBehaviour
                     else
                     {
                         //spawn a wall but only alert the current room. this is a boundry room, meaning that there is no rooms beyond that point in that direction.
-                        g = Instantiate(Up_Wall, FloorMatrix[a][b].transform.parent.position, Quaternion.identity);
+                        g = Instantiate(Up_Wall, FloorMatrix[a][b].transform.position, Quaternion.identity);
                         FloorMatrix[a][b].WallPlaced[(int)Dir.UP] = true;
 
                         g.transform.parent = AllWallPoint.transform;
@@ -354,7 +354,7 @@ public class MazeGenerator : MonoBehaviour
                         if (!FloorMatrix[a][b].GridConnectors[(int)Dir.RIGHT].WallPlaced[(int)Dir.LEFT])
                         {
                             // then spawn a wall and alert both rooms that there is a wall there. this is to prevent to walls spawning in the same place and reduces resources.
-                            g = Instantiate(Right_Wall, FloorMatrix[a][b].transform.parent.position, Quaternion.identity);
+                            g = Instantiate(Right_Wall, FloorMatrix[a][b].transform.position, Quaternion.identity);
                             FloorMatrix[a][b].GridConnectors[(int)Dir.RIGHT].WallPlaced[(int)Dir.LEFT] = true;
                             FloorMatrix[a][b].WallPlaced[(int)Dir.RIGHT] = true;
 
@@ -365,7 +365,7 @@ public class MazeGenerator : MonoBehaviour
                     else
                     {
                         //spawn a wall but only alert the current room. this is a boundry room, meaning that there is no rooms beyond that point in that direction.
-                        g = Instantiate(Right_Wall, FloorMatrix[a][b].transform.parent.position, Quaternion.identity);
+                        g = Instantiate(Right_Wall, FloorMatrix[a][b].transform.position, Quaternion.identity);
                         FloorMatrix[a][b].WallPlaced[(int)Dir.RIGHT] = true;
 
                         g.transform.parent = AllWallPoint.transform;
@@ -384,7 +384,7 @@ public class MazeGenerator : MonoBehaviour
                         if (!FloorMatrix[a][b].GridConnectors[(int)Dir.DOWN].WallPlaced[(int)Dir.UP])
                         {
                             // then spawn a wall and alert both rooms that there is a wall there. this is to prevent to walls spawning in the same place and reduces resources.
-                            g = Instantiate(Down_Wall, FloorMatrix[a][b].transform.parent.position, Quaternion.identity);
+                            g = Instantiate(Down_Wall, FloorMatrix[a][b].transform.position, Quaternion.identity);
                             FloorMatrix[a][b].GridConnectors[(int)Dir.DOWN].WallPlaced[(int)Dir.UP] = true;
                             FloorMatrix[a][b].WallPlaced[(int)Dir.DOWN] = true;
 
@@ -395,7 +395,7 @@ public class MazeGenerator : MonoBehaviour
                     else
                     {
                         //spawn a wall but only alert the current room. this is a boundry room, meaning that there is no rooms beyond that point in that direction.
-                        g = Instantiate(Down_Wall, FloorMatrix[a][b].transform.parent.position, Quaternion.identity);
+                        g = Instantiate(Down_Wall, FloorMatrix[a][b].transform.position, Quaternion.identity);
                         FloorMatrix[a][b].WallPlaced[(int)Dir.DOWN] = true;
 
                         g.transform.parent = AllWallPoint.transform;
@@ -413,7 +413,7 @@ public class MazeGenerator : MonoBehaviour
                         if (!FloorMatrix[a][b].GridConnectors[(int)Dir.LEFT].WallPlaced[(int)Dir.RIGHT])
                         {
                             // then spawn a wall and alert both rooms that there is a wall there. this is to prevent to walls spawning in the same place and reduces resources.
-                            g = Instantiate(Left_Wall, FloorMatrix[a][b].transform.parent.position, Quaternion.identity);
+                            g = Instantiate(Left_Wall, FloorMatrix[a][b].transform.position, Quaternion.identity);
                             FloorMatrix[a][b].GridConnectors[(int)Dir.LEFT].WallPlaced[(int)Dir.RIGHT] = true;
                             FloorMatrix[a][b].WallPlaced[(int)Dir.LEFT] = true;
 
@@ -424,7 +424,7 @@ public class MazeGenerator : MonoBehaviour
                     else
                     {
                         //spawn a wall but only alert the current room. this is a boundry room, meaning that there is no rooms beyond that point in that direction.
-                        g = Instantiate(Left_Wall, FloorMatrix[a][b].transform.parent.position, Quaternion.identity);
+                        g = Instantiate(Left_Wall, FloorMatrix[a][b].transform.position, Quaternion.identity);
                         FloorMatrix[a][b].WallPlaced[(int)Dir.LEFT] = true;
 
                         g.transform.parent = AllWallPoint.transform;
@@ -442,7 +442,7 @@ public class MazeGenerator : MonoBehaviour
 
         AllFloorPaths = new List<FloorNode>(UsedNodes); // updates AllFloorPaths of floors being used.
 
-        AddTreasureRooms(CornerRooms);
+        //AddTreasureRooms(CornerRooms);
     }
     
     // resets floor data like the state of rooms, ALL walls and treasures. but it does not delete the original grid data. as it can be reused
@@ -611,6 +611,7 @@ public class MazeGenerator : MonoBehaviour
     void Start()
     {
         SetupFloor();
+        GenerateFloor();
     }
 
     // resets the floor back to it's initial state
@@ -624,7 +625,7 @@ public class MazeGenerator : MonoBehaviour
     {
         GenerateFloor();
         AdjustMapRenderer();
-        PlacePlayer();
-        PlaceGuards();
+        //PlacePlayer();
+        //PlaceGuards();
     }
 }

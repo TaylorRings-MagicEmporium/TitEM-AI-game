@@ -58,8 +58,8 @@ public class gamemanager : MonoBehaviour
         SS = GetComponent<ScreenSwitcher>();
         SS.Self_Start();
         CM = GetComponent<CashManager>();
-        StartCoroutine(CheckTotalSusLevel());
-        UpdatePlayerStatus(Game_State.SELECT);
+        //StartCoroutine(CheckTotalSusLevel());
+        //UpdatePlayerStatus(Game_State.SELECT);
         Player = GameObject.FindGameObjectWithTag("Player");
 
     }
