@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class MazeGenerator : MonoBehaviour
 {
+    //NEW
+    public GameObject floor;
+
     // grid size
     public int GridSizeX = 6;
     public int GridSizeY = 6;
-
-    List<List<int>> stateFloorMatrix = new List<List<int>>();
-
 
     // 2D metrix of all floors.
     List<List<FloorNode>> FloorMatrix = new List<List<FloorNode>>();
@@ -71,38 +71,86 @@ public class MazeGenerator : MonoBehaviour
     // all room nodes used for the floor
     List<FloorNode> AllFloorPaths = new List<FloorNode>();
 
+
+
+
     // used to setup the floor once the scene is built
     void SetupFloor()
     {
-        List<GameObject> AllFloorConnectors = new List<GameObject>();
-        // right now, the rooms know which rooms are connected via the FloorNode awake function.
-        // however, they don't know their grid positions.
-        AllFloorConnectors.AddRange(GameObject.FindGameObjectsWithTag("FloorCon"));
 
-        // remove colliders once grid setup is done.
-        for (int i = 0; i < AllFloorConnectors.Count; i++)
-        {
-            AllFloorConnectors[i].GetComponent<Collider>().enabled = false;
-        }
-
-        // a floor node is nominated as the start and therefore the grid is based on it's origin
-        FloorNode Pointer = Element_0_0;
-
-        // constructs a data-esque representation of the grid.
         for (int y = 0; y < GridSizeY; y++)
         {
-            FloorNode RowStart = Pointer;
             List<FloorNode> row = new List<FloorNode>();
+
             for (int x = 0; x < GridSizeX; x++)  // going by rows first...
             {
-                row.Add(Pointer);
-                Pointer.GridLoc = new Vector2(x, y);
-                Pointer = Pointer.GridConnectors[(int)Dir.RIGHT];
+                FloorNode ptr = Instantiate(floor).GetComponent<FloorNode>();
+                row.Add(ptr);
+                ptr.transform.position = transform.position + new Vector3(10 * x, 0, -10 * y);
+                ptr.GridLoc = new Vector2(x, y);
             }
 
-            Pointer = RowStart.GridConnectors[(int)Dir.UP]; // then increase the pointer to the next start of row
             FloorMatrix.Add(row);
         }
+
+        for(int y = 0; y < GridSizeY; y++)
+        {
+            for(int x = 0; x < GridSizeX; x++)
+            {
+                //UP
+                if(y != 0)
+                {
+                    FloorMatrix[y][x].GridConnectors[0] = FloorMatrix[y - 1][x];
+                }
+                //RIGHT
+                if (x != GridSizeX-1)
+                {
+                    FloorMatrix[y][x].GridConnectors[1] = FloorMatrix[y][x+1];
+                }
+                //DOWN
+                if (y != GridSizeY-1)
+                {
+                    FloorMatrix[y][x].GridConnectors[2] = FloorMatrix[y + 1][x];
+                }
+                //LEFT
+                if (x != 0)
+                {
+                    FloorMatrix[y][x].GridConnectors[3] = FloorMatrix[y][x-1];
+                }
+
+            }
+        }
+
+
+        //List<GameObject> AllFloorConnectors = new List<GameObject>();
+        //// right now, the rooms know which rooms are connected via the FloorNode awake function.
+        //// however, they don't know their grid positions.
+        //AllFloorConnectors.AddRange(GameObject.FindGameObjectsWithTag("FloorCon"));
+
+        //// remove colliders once grid setup is done.
+        //for (int i = 0; i < AllFloorConnectors.Count; i++)
+        //{
+        //    AllFloorConnectors[i].GetComponent<Collider>().enabled = false;
+        //}
+
+        //// a floor node is nominated as the start and therefore the grid is based on it's origin
+        //FloorNode Pointer = Element_0_0;
+
+        //// constructs a data-esque representation of the grid.
+        //for (int y = 0; y < GridSizeY; y++)
+        //{
+        //    FloorNode RowStart = Pointer;
+        //    List<FloorNode> row = new List<FloorNode>();
+        //    for (int x = 0; x < GridSizeX; x++)  // going by rows first...
+        //    {
+        //        row.Add(Pointer);
+        //        Pointer.GridLoc = new Vector2(x, y);
+        //        Pointer = Pointer.GridConnectors[(int)Dir.RIGHT];
+        //    }
+
+        //    Pointer = RowStart.GridConnectors[(int)Dir.UP]; // then increase the pointer to the next start of row
+        //    FloorMatrix.Add(row);
+        //}
     }
 
     void GenerateFloor()
