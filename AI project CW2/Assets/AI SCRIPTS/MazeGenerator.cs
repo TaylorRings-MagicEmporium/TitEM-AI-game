@@ -252,7 +252,15 @@ public class MazeGenerator : MonoBehaviour
         // wall and floor management
         // updates the floors in whether they will be used or not
         // instantiates walls for unique AI pathway, while making sure that only one instance of wall exists in a direction between two rooms.
-        
+
+        for (int a = 0; a < GridSizeX; a++)
+        {
+            for (int b = 0; b < GridSizeY; b++)
+            {
+
+            }
+        }
+
         for (int a = 0; a < GridSizeX; a++)
         {
             for (int b = 0; b < GridSizeY; b++)
@@ -277,135 +285,36 @@ public class MazeGenerator : MonoBehaviour
                 int count = 4;
 
                 GameObject g = null;
-                // if there is no path connected to the UP direction of the node...
-                if (!FloorMatrix[a][b].PathConnectors[(int)Dir.UP])
+
+                for(int i = 0; i < 4; i++)
                 {
-                    count--;
-                    // if there is a room in the UP direction...
-                    if (FloorMatrix[a][b].GridConnectors[(int)Dir.UP])
+                    // if there is no path connected to the UP direction of the node...
+                    if (!FloorMatrix[a][b].PathConnectors[i])
                     {
-                        // if the room in the UP direction doesn't have a wall...   
-                        if (!FloorMatrix[a][b].GridConnectors[(int)Dir.UP].WallPlaced[(int)Dir.DOWN])
+                        count--;
+                        // if there is a room in the UP direction...
+                        if (FloorMatrix[a][b].GridConnectors[i])
                         {
-                            // then spawn a wall and alert both rooms that there is a wall there. this is to prevent two walls spawning in the same place and reduces resources.
+                            // if the room in the UP direction doesn't have a wall...   
+                            if (!FloorMatrix[a][b].GridConnectors[i].WallPlaced[(i+2)%4])
+                            {
+                                // then spawn a wall and alert both rooms that there is a wall there. this is to prevent two walls spawning in the same place and reduces resources.
+                                g = wallObjectPool.RequestObject();
+                                g.transform.position = FloorMatrix[a][b].transform.position;
+                                g.transform.Rotate(0, i * 90, 0);
+                                FloorMatrix[a][b].GridConnectors[i].WallPlaced[(i + 2) % 4] = true;
+                                FloorMatrix[a][b].WallPlaced[i] = true;
+                            }
+                        }
+                        else
+                        {
+                            //spawn a wall but only alert the current room. this is a boundry room, meaning that there is no rooms beyond that point in that direction.
                             g = wallObjectPool.RequestObject();
                             g.transform.position = FloorMatrix[a][b].transform.position;
-                            FloorMatrix[a][b].GridConnectors[(int)Dir.UP].WallPlaced[(int)Dir.DOWN] = true;
-                            FloorMatrix[a][b].WallPlaced[(int)Dir.UP] = true;
+                            g.transform.Rotate(0, i * 90, 0);
 
-                            //g.transform.parent = AllWallPoint.transform;
-                            //AllWalls.Add(g);
+                            FloorMatrix[a][b].WallPlaced[i] = true;
                         }
-                    }
-                    else
-                    {
-                        //spawn a wall but only alert the current room. this is a boundry room, meaning that there is no rooms beyond that point in that direction.
-                        g = wallObjectPool.RequestObject();
-                        g.transform.position = FloorMatrix[a][b].transform.position;
-                        FloorMatrix[a][b].WallPlaced[(int)Dir.UP] = true;
-
-                        //g.transform.parent = AllWallPoint.transform;
-                        //AllWalls.Add(g);
-                    }
-                }
-                // if there is no path connected to the RIGHT direction of the node...
-                if (!FloorMatrix[a][b].PathConnectors[(int)Dir.RIGHT])
-                {
-                    count--;
-                    // if there is a room in the RIGHT direction...
-                    if (FloorMatrix[a][b].GridConnectors[(int)Dir.RIGHT])
-                    {
-                        // if the room in the RIGHT direction doesn't have a wall...   
-                        if (!FloorMatrix[a][b].GridConnectors[(int)Dir.RIGHT].WallPlaced[(int)Dir.LEFT])
-                        {
-                            // then spawn a wall and alert both rooms that there is a wall there. this is to prevent to walls spawning in the same place and reduces resources.
-                            g = wallObjectPool.RequestObject();
-                            g.transform.Rotate(0, 90, 0);
-                            g.transform.position = FloorMatrix[a][b].transform.position;
-                            FloorMatrix[a][b].GridConnectors[(int)Dir.RIGHT].WallPlaced[(int)Dir.LEFT] = true;
-                            FloorMatrix[a][b].WallPlaced[(int)Dir.RIGHT] = true;
-
-                            //g.transform.parent = AllWallPoint.transform;
-                            //AllWalls.Add(g);
-                        }
-                    }
-                    else
-                    {
-                        //spawn a wall but only alert the current room. this is a boundry room, meaning that there is no rooms beyond that point in that direction.
-                        g = wallObjectPool.RequestObject();
-                        g.transform.Rotate(0, 90, 0);
-                        g.transform.position = FloorMatrix[a][b].transform.position;
-                        FloorMatrix[a][b].WallPlaced[(int)Dir.RIGHT] = true;
-
-                        //g.transform.parent = AllWallPoint.transform;
-                        //AllWalls.Add(g);
-                    }
-
-                }
-                // if there is no path connected to the DOWN direction of the node...
-                if (!FloorMatrix[a][b].PathConnectors[(int)Dir.DOWN])
-                {
-                    count--;
-                    // if there is a room in the DOWN direction...
-                    if (FloorMatrix[a][b].GridConnectors[(int)Dir.DOWN])
-                    {
-                        // if the room in the DOWN direction doesn't have a wall...   
-                        if (!FloorMatrix[a][b].GridConnectors[(int)Dir.DOWN].WallPlaced[(int)Dir.UP])
-                        {
-                            // then spawn a wall and alert both rooms that there is a wall there. this is to prevent to walls spawning in the same place and reduces resources.
-                            g = wallObjectPool.RequestObject();
-                            g.transform.Rotate(0, 180, 0);
-                            g.transform.position = FloorMatrix[a][b].transform.position;
-                            FloorMatrix[a][b].GridConnectors[(int)Dir.DOWN].WallPlaced[(int)Dir.UP] = true;
-                            FloorMatrix[a][b].WallPlaced[(int)Dir.DOWN] = true;
-
-                            //g.transform.parent = AllWallPoint.transform;
-                            //AllWalls.Add(g);
-                        }
-                    }
-                    else
-                    {
-                        //spawn a wall but only alert the current room. this is a boundry room, meaning that there is no rooms beyond that point in that direction.
-                        g = wallObjectPool.RequestObject();
-                        g.transform.Rotate(0, 180, 0);
-                        g.transform.position = FloorMatrix[a][b].transform.position;
-                        FloorMatrix[a][b].WallPlaced[(int)Dir.DOWN] = true;
-
-                        //g.transform.parent = AllWallPoint.transform;
-                        //AllWalls.Add(g);
-                    }
-                }
-                // if there is no path connected to the LEFT direction of the node...
-                if (!FloorMatrix[a][b].PathConnectors[(int)Dir.LEFT])
-                {
-                    count--;
-                    // if there is a room in the LEFT direction...
-                    if (FloorMatrix[a][b].GridConnectors[(int)Dir.LEFT])
-                    {
-                        // if the room in the LEFT direction doesn't have a wall...   
-                        if (!FloorMatrix[a][b].GridConnectors[(int)Dir.LEFT].WallPlaced[(int)Dir.RIGHT])
-                        {
-                            // then spawn a wall and alert both rooms that there is a wall there. this is to prevent to walls spawning in the same place and reduces resources.
-                            g = wallObjectPool.RequestObject();
-                            g.transform.Rotate(0, 270, 0);
-                            g.transform.position = FloorMatrix[a][b].transform.position;
-                            FloorMatrix[a][b].GridConnectors[(int)Dir.LEFT].WallPlaced[(int)Dir.RIGHT] = true;
-                            FloorMatrix[a][b].WallPlaced[(int)Dir.LEFT] = true;
-
-                            //g.transform.parent = AllWallPoint.transform;
-                            //AllWalls.Add(g);
-                        }
-                    }
-                    else
-                    {
-                        //spawn a wall but only alert the current room. this is a boundry room, meaning that there is no rooms beyond that point in that direction.
-                        g = wallObjectPool.RequestObject();
-                        g.transform.Rotate(0, 270, 0);
-                        g.transform.position = FloorMatrix[a][b].transform.position;
-                        FloorMatrix[a][b].WallPlaced[(int)Dir.LEFT] = true;
-
-                        //g.transform.parent = AllWallPoint.transform;
-                        //AllWalls.Add(g);
                     }
                 }
 
