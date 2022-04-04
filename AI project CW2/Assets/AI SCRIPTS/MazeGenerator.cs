@@ -22,10 +22,12 @@ public class MazeGenerator : MonoBehaviour
     public GameObject AllWallPoint;
 
     // prefabs of walls based on the direction/
-    public GameObject Up_Wall;
-    public GameObject Right_Wall;
-    public GameObject Down_Wall;
-    public GameObject Left_Wall;
+    //public GameObject Up_Wall;
+    //public GameObject Right_Wall;
+    //public GameObject Down_Wall;
+    //public GameObject Left_Wall;
+
+    public ObjectPool wallObjectPool;
     public GameObject Treasure;
 
     // indicates the starting node of the floor
@@ -120,46 +122,12 @@ public class MazeGenerator : MonoBehaviour
 
             }
         }
-
-
-        //List<GameObject> AllFloorConnectors = new List<GameObject>();
-        //// right now, the rooms know which rooms are connected via the FloorNode awake function.
-        //// however, they don't know their grid positions.
-        //AllFloorConnectors.AddRange(GameObject.FindGameObjectsWithTag("FloorCon"));
-
-        //// remove colliders once grid setup is done.
-        //for (int i = 0; i < AllFloorConnectors.Count; i++)
-        //{
-        //    AllFloorConnectors[i].GetComponent<Collider>().enabled = false;
-        //}
-
-        //// a floor node is nominated as the start and therefore the grid is based on it's origin
-        //FloorNode Pointer = Element_0_0;
-
-        //// constructs a data-esque representation of the grid.
-        //for (int y = 0; y < GridSizeY; y++)
-        //{
-        //    FloorNode RowStart = Pointer;
-        //    List<FloorNode> row = new List<FloorNode>();
-        //    for (int x = 0; x < GridSizeX; x++)  // going by rows first...
-        //    {
-        //        row.Add(Pointer);
-        //        Pointer.GridLoc = new Vector2(x, y);
-        //        Pointer = Pointer.GridConnectors[(int)Dir.RIGHT];
-        //    }
-
-        //    Pointer = RowStart.GridConnectors[(int)Dir.UP]; // then increase the pointer to the next start of row
-        //    FloorMatrix.Add(row);
-        //}
     }
 
-    void GenerateFloor()
+    void RandomisedPrimsAlgorithm()
     {
-        // generateFloor recieves data on the condition of the floor
-        Debug.Log("creating floor with:\n" + RoomsInFloor + " rooms\n" + GuardsToStand + " guards to stand\n" + GuardsToWalk + " guards to walk\ntreasure values between " + MinTreasureAmount + " and " + MaxTreasureAmount + "\n");
-
         //starts a a random room
-        FloorNode start = FloorMatrix[Random.Range(0, GridSizeX-1)][Random.Range(0, GridSizeY-1)];
+        FloorNode start = FloorMatrix[Random.Range(0, GridSizeX - 1)][Random.Range(0, GridSizeY - 1)];
         CurrentStartNode = start;
         CurrentStartNode.IsStartingRoom = true;
         start.Used = true;
@@ -169,6 +137,8 @@ public class MazeGenerator : MonoBehaviour
         List<FloorNode> UnvisitedNodes = new List<FloorNode>();
         List<FloorNode> UsedNodes = new List<FloorNode>();
         UsedNodes.Add(start);
+
+        // mini-map camera positions (NEED TO CHANGED)
         minRadius = new Vector2(start.transform.position.x, start.transform.position.z);
         maxRadius = new Vector2(start.transform.position.x, start.transform.position.z);
 
@@ -214,33 +184,18 @@ public class MazeGenerator : MonoBehaviour
                 }
 
             }
+
             // choose random direction that the node would connect to.
-            int ToConnect = temp[Random.Range(0, temp.Count)];
+            int ExistingFloorDirection = temp[Random.Range(0, temp.Count)];
 
             //communicates to both nodes which direction the other node is
-            NextAdded.PathConnectors[ToConnect] = true;
-            int reverse = -1;
-            // gets the direction of the connected node relative to the itself  
-            switch (ToConnect)
-            {
-                case 0:
-                    reverse = 2;
-                    break;
+            NextAdded.PathConnectors[ExistingFloorDirection] = true;
 
-                case 1:
-                    reverse = 3;
-                    break;
+            int reverse = (ExistingFloorDirection + 2) % 4;
 
-                case 2:
-                    reverse = 0;
-                    break;
 
-                case 3:
-                    reverse = 1;
-                    break;
-            }
             // modifies the connected node to know which directions it is being connected to in relation to NextAdded.
-            NextAdded.GridConnectors[ToConnect].PathConnectors[reverse] = true;
+            NextAdded.GridConnectors[ExistingFloorDirection].PathConnectors[reverse] = true;
             NextAdded.Used = true;
             UsedNodes.Add(NextAdded);
             NumOfRooms++;
@@ -282,6 +237,15 @@ public class MazeGenerator : MonoBehaviour
                 Condition = false;
             }
         }
+        AllFloorPaths = new List<FloorNode>(UsedNodes); // updates AllFloorPaths of floors being used.
+    }
+
+    void GenerateFloor()
+    {
+        // generateFloor recieves data on the condition of the floor
+        Debug.Log("creating floor with:\n" + RoomsInFloor + " rooms\n" + GuardsToStand + " guards to stand\n" + GuardsToWalk + " guards to walk\ntreasure values between " + MinTreasureAmount + " and " + MaxTreasureAmount + "\n");
+
+        RandomisedPrimsAlgorithm();
 
         List<FloorNode> CornerRooms = new List<FloorNode>();
 
@@ -323,24 +287,25 @@ public class MazeGenerator : MonoBehaviour
                         // if the room in the UP direction doesn't have a wall...   
                         if (!FloorMatrix[a][b].GridConnectors[(int)Dir.UP].WallPlaced[(int)Dir.DOWN])
                         {
-                            // then spawn a wall and alert both rooms that there is a wall there. this is to prevent to walls spawning in the same place and reduces resources.
-                            g = Instantiate(Up_Wall, FloorMatrix[a][b].transform.position, Quaternion.identity);
-
+                            // then spawn a wall and alert both rooms that there is a wall there. this is to prevent two walls spawning in the same place and reduces resources.
+                            g = wallObjectPool.RequestObject();
+                            g.transform.position = FloorMatrix[a][b].transform.position;
                             FloorMatrix[a][b].GridConnectors[(int)Dir.UP].WallPlaced[(int)Dir.DOWN] = true;
                             FloorMatrix[a][b].WallPlaced[(int)Dir.UP] = true;
 
-                            g.transform.parent = AllWallPoint.transform;
-                            AllWalls.Add(g);
+                            //g.transform.parent = AllWallPoint.transform;
+                            //AllWalls.Add(g);
                         }
                     }
                     else
                     {
                         //spawn a wall but only alert the current room. this is a boundry room, meaning that there is no rooms beyond that point in that direction.
-                        g = Instantiate(Up_Wall, FloorMatrix[a][b].transform.position, Quaternion.identity);
+                        g = wallObjectPool.RequestObject();
+                        g.transform.position = FloorMatrix[a][b].transform.position;
                         FloorMatrix[a][b].WallPlaced[(int)Dir.UP] = true;
 
-                        g.transform.parent = AllWallPoint.transform;
-                        AllWalls.Add(g);
+                        //g.transform.parent = AllWallPoint.transform;
+                        //AllWalls.Add(g);
                     }
                 }
                 // if there is no path connected to the RIGHT direction of the node...
@@ -354,22 +319,26 @@ public class MazeGenerator : MonoBehaviour
                         if (!FloorMatrix[a][b].GridConnectors[(int)Dir.RIGHT].WallPlaced[(int)Dir.LEFT])
                         {
                             // then spawn a wall and alert both rooms that there is a wall there. this is to prevent to walls spawning in the same place and reduces resources.
-                            g = Instantiate(Right_Wall, FloorMatrix[a][b].transform.position, Quaternion.identity);
+                            g = wallObjectPool.RequestObject();
+                            g.transform.Rotate(0, 90, 0);
+                            g.transform.position = FloorMatrix[a][b].transform.position;
                             FloorMatrix[a][b].GridConnectors[(int)Dir.RIGHT].WallPlaced[(int)Dir.LEFT] = true;
                             FloorMatrix[a][b].WallPlaced[(int)Dir.RIGHT] = true;
 
-                            g.transform.parent = AllWallPoint.transform;
-                            AllWalls.Add(g);
+                            //g.transform.parent = AllWallPoint.transform;
+                            //AllWalls.Add(g);
                         }
                     }
                     else
                     {
                         //spawn a wall but only alert the current room. this is a boundry room, meaning that there is no rooms beyond that point in that direction.
-                        g = Instantiate(Right_Wall, FloorMatrix[a][b].transform.position, Quaternion.identity);
+                        g = wallObjectPool.RequestObject();
+                        g.transform.Rotate(0, 90, 0);
+                        g.transform.position = FloorMatrix[a][b].transform.position;
                         FloorMatrix[a][b].WallPlaced[(int)Dir.RIGHT] = true;
 
-                        g.transform.parent = AllWallPoint.transform;
-                        AllWalls.Add(g);
+                        //g.transform.parent = AllWallPoint.transform;
+                        //AllWalls.Add(g);
                     }
 
                 }
@@ -384,22 +353,26 @@ public class MazeGenerator : MonoBehaviour
                         if (!FloorMatrix[a][b].GridConnectors[(int)Dir.DOWN].WallPlaced[(int)Dir.UP])
                         {
                             // then spawn a wall and alert both rooms that there is a wall there. this is to prevent to walls spawning in the same place and reduces resources.
-                            g = Instantiate(Down_Wall, FloorMatrix[a][b].transform.position, Quaternion.identity);
+                            g = wallObjectPool.RequestObject();
+                            g.transform.Rotate(0, 180, 0);
+                            g.transform.position = FloorMatrix[a][b].transform.position;
                             FloorMatrix[a][b].GridConnectors[(int)Dir.DOWN].WallPlaced[(int)Dir.UP] = true;
                             FloorMatrix[a][b].WallPlaced[(int)Dir.DOWN] = true;
 
-                            g.transform.parent = AllWallPoint.transform;
-                            AllWalls.Add(g);
+                            //g.transform.parent = AllWallPoint.transform;
+                            //AllWalls.Add(g);
                         }
                     }
                     else
                     {
                         //spawn a wall but only alert the current room. this is a boundry room, meaning that there is no rooms beyond that point in that direction.
-                        g = Instantiate(Down_Wall, FloorMatrix[a][b].transform.position, Quaternion.identity);
+                        g = wallObjectPool.RequestObject();
+                        g.transform.Rotate(0, 180, 0);
+                        g.transform.position = FloorMatrix[a][b].transform.position;
                         FloorMatrix[a][b].WallPlaced[(int)Dir.DOWN] = true;
 
-                        g.transform.parent = AllWallPoint.transform;
-                        AllWalls.Add(g);
+                        //g.transform.parent = AllWallPoint.transform;
+                        //AllWalls.Add(g);
                     }
                 }
                 // if there is no path connected to the LEFT direction of the node...
@@ -413,22 +386,26 @@ public class MazeGenerator : MonoBehaviour
                         if (!FloorMatrix[a][b].GridConnectors[(int)Dir.LEFT].WallPlaced[(int)Dir.RIGHT])
                         {
                             // then spawn a wall and alert both rooms that there is a wall there. this is to prevent to walls spawning in the same place and reduces resources.
-                            g = Instantiate(Left_Wall, FloorMatrix[a][b].transform.position, Quaternion.identity);
+                            g = wallObjectPool.RequestObject();
+                            g.transform.Rotate(0, 270, 0);
+                            g.transform.position = FloorMatrix[a][b].transform.position;
                             FloorMatrix[a][b].GridConnectors[(int)Dir.LEFT].WallPlaced[(int)Dir.RIGHT] = true;
                             FloorMatrix[a][b].WallPlaced[(int)Dir.LEFT] = true;
 
-                            g.transform.parent = AllWallPoint.transform;
-                            AllWalls.Add(g);
+                            //g.transform.parent = AllWallPoint.transform;
+                            //AllWalls.Add(g);
                         }
                     }
                     else
                     {
                         //spawn a wall but only alert the current room. this is a boundry room, meaning that there is no rooms beyond that point in that direction.
-                        g = Instantiate(Left_Wall, FloorMatrix[a][b].transform.position, Quaternion.identity);
+                        g = wallObjectPool.RequestObject();
+                        g.transform.Rotate(0, 270, 0);
+                        g.transform.position = FloorMatrix[a][b].transform.position;
                         FloorMatrix[a][b].WallPlaced[(int)Dir.LEFT] = true;
 
-                        g.transform.parent = AllWallPoint.transform;
-                        AllWalls.Add(g);
+                        //g.transform.parent = AllWallPoint.transform;
+                        //AllWalls.Add(g);
                     }
                 }
 
@@ -440,7 +417,7 @@ public class MazeGenerator : MonoBehaviour
             }
         }
 
-        AllFloorPaths = new List<FloorNode>(UsedNodes); // updates AllFloorPaths of floors being used.
+        
 
         //AddTreasureRooms(CornerRooms);
     }
@@ -457,14 +434,9 @@ public class MazeGenerator : MonoBehaviour
         }
 
         // destroys all walls
-        foreach (GameObject g in AllWalls)
-        {
-            Destroy(g); 
-        }
-        AllWalls.Clear();
-
+        wallObjectPool.ResetObjectsState();
         //destroy all treaure items (combo of light, treasure model and collider)
-        foreach(GameObject g in TreasureItems)
+        foreach (GameObject g in TreasureItems)
         {
             Destroy(g);
         }

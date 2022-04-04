@@ -3386,18 +3386,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 747917392}
   m_CullTransparentMesh: 0
---- !u!114 &752281754 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6267674681991906714, guid: 9d7c886a87cf83e4a93f28675369bbba,
-    type: 3}
-  m_PrefabInstance: {fileID: 5953786871743650013}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f94c8109dfb78974097097f7161363e5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &770333915
 GameObject:
   m_ObjectHideFlags: 0
@@ -3652,7 +3640,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &824035545
 Transform:
   m_ObjectHideFlags: 0
@@ -7236,9 +7224,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f3778fa302937a438710ba72f99d972, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  floor: {fileID: 5953786871833855256, guid: 9d7c886a87cf83e4a93f28675369bbba, type: 3}
   GridSizeX: 7
   GridSizeY: 7
-  Element_0_0: {fileID: 752281754}
+  Element_0_0: {fileID: 0}
   AllWallPoint: {fileID: 189212769}
   Up_Wall: {fileID: 521826216782946426, guid: 18e871efeeb4ebb4ca18caf4ec40469f, type: 3}
   Right_Wall: {fileID: 6220990903032293418, guid: c60d9a1ea8812614f94fafb70a4dd7bf,
