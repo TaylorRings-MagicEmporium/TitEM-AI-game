@@ -14,18 +14,8 @@ public class MazeGenerator : MonoBehaviour
     // 2D metrix of all floors.
     List<List<FloorNode>> FloorMatrix = new List<List<FloorNode>>();
 
-    // indecates the starting node of the grid
-    public FloorNode Element_0_0;
-
-    // wall data types to record walls and put under one parent.
-    List<GameObject> AllWalls = new List<GameObject>();
-    public GameObject AllWallPoint;
-
-    // prefabs of walls based on the direction/
-    //public GameObject Up_Wall;
-    //public GameObject Right_Wall;
-    //public GameObject Down_Wall;
-    //public GameObject Left_Wall;
+    //all corner rooms of the current prim's maze
+    List<FloorNode> currentCornerRooms = new List<FloorNode>();
 
     public ObjectPool wallObjectPool;
     public GameObject Treasure;
@@ -64,17 +54,8 @@ public class MazeGenerator : MonoBehaviour
     Vector2 minRadius = new Vector2(0, 0);
     Vector2 maxRadius = new Vector2(0, 0);
 
-    // direction enum when referencing array as a 2D grid
-    enum Dir
-    {
-        UP, RIGHT, DOWN, LEFT
-    };
-
-    // all room nodes used for the floor
+    // all room nodes used in Prim's algorithm
     List<FloorNode> AllFloorPaths = new List<FloorNode>();
-
-
-
 
     // used to setup the floor once the scene is built
     void SetupFloor()
@@ -157,7 +138,6 @@ public class MazeGenerator : MonoBehaviour
             }
 
         }
-
 
         //start conditions
         bool Condition = true;
@@ -247,19 +227,11 @@ public class MazeGenerator : MonoBehaviour
 
         RandomisedPrimsAlgorithm();
 
-        List<FloorNode> CornerRooms = new List<FloorNode>();
+
 
         // wall and floor management
         // updates the floors in whether they will be used or not
         // instantiates walls for unique AI pathway, while making sure that only one instance of wall exists in a direction between two rooms.
-
-        for (int a = 0; a < GridSizeX; a++)
-        {
-            for (int b = 0; b < GridSizeY; b++)
-            {
-
-            }
-        }
 
         for (int a = 0; a < GridSizeX; a++)
         {
@@ -288,15 +260,19 @@ public class MazeGenerator : MonoBehaviour
 
                 for(int i = 0; i < 4; i++)
                 {
-                    // if there is no path connected to the UP direction of the node...
-                    if (!FloorMatrix[a][b].PathConnectors[i])
+                    bool pathNotExist = !FloorMatrix[a][b].PathConnectors[i];
+                    bool roomAdjacent = FloorMatrix[a][b].GridConnectors[i];
+
+                    // if there is no path connected to a specific direction of the node...
+                    if (pathNotExist)
                     {
                         count--;
-                        // if there is a room in the UP direction...
-                        if (FloorMatrix[a][b].GridConnectors[i])
+                        // if there is a room in the specific direction...
+                        if (roomAdjacent)
                         {
+                            bool wallNotPlaced = !FloorMatrix[a][b].GridConnectors[i].WallPlaced[(i + 2) % 4];
                             // if the room in the UP direction doesn't have a wall...   
-                            if (!FloorMatrix[a][b].GridConnectors[i].WallPlaced[(i+2)%4])
+                            if (wallNotPlaced)
                             {
                                 // then spawn a wall and alert both rooms that there is a wall there. this is to prevent two walls spawning in the same place and reduces resources.
                                 g = wallObjectPool.RequestObject();
@@ -321,7 +297,7 @@ public class MazeGenerator : MonoBehaviour
                 // if the room only contains 1 pathway, then it is a dead end and a possible place for the treasure
                 if(count == 1)
                 {
-                    CornerRooms.Add(FloorMatrix[a][b]);
+                    currentCornerRooms.Add(FloorMatrix[a][b]);
                 }
             }
         }
@@ -367,9 +343,9 @@ public class MazeGenerator : MonoBehaviour
     // places player at the current start node with a Y offset and instantiate a grate for the player to begin in.
     void PlacePlayer()
     {
-        Player.transform.position = CurrentStartNode.transform.parent.position + new Vector3(0, 1.5f);
+        Player.transform.position = CurrentStartNode.transform.position + new Vector3(0, 1.5f);
         Player.GetComponent<Player_Transition>().Player_Disabled();
-        Current_Grate_Object = Instantiate(Grate, CurrentStartNode.transform.parent.position, Quaternion.identity);
+        Current_Grate_Object = Instantiate(Grate, CurrentStartNode.transform.position, Quaternion.identity);
     }
 
     // places guards for the floor
@@ -476,7 +452,7 @@ public class MazeGenerator : MonoBehaviour
             TreasureNodes.Add(rooms[idx]);
             TreasureNodes[i].IsTreasureRoom = true; // modifies the floor node to be treasure node
 
-            GameObject g = Instantiate(Treasure, TreasureNodes[i].transform.parent.position, Quaternion.identity);
+            GameObject g = Instantiate(Treasure, TreasureNodes[i].transform.position, Quaternion.identity);
             g.GetComponent<Treasure_Info>().NodeLoc = TreasureNodes[i];
 
             int randModel = Random.Range(0, TreasureModels.Count); // chooses a random model to present
@@ -492,7 +468,7 @@ public class MazeGenerator : MonoBehaviour
     void Start()
     {
         SetupFloor();
-        GenerateFloor();
+        Create_Floor_Level();
     }
 
     // resets the floor back to it's initial state
@@ -506,7 +482,8 @@ public class MazeGenerator : MonoBehaviour
     {
         GenerateFloor();
         AdjustMapRenderer();
-        //PlacePlayer();
+        AddTreasureRooms(currentCornerRooms);
+        PlacePlayer();
         //PlaceGuards();
     }
 }
