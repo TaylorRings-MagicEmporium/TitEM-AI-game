@@ -121,6 +121,52 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 23800000, guid: a07ddbdc2af5cb44a89a0a1d5b4da645, type: 2}
+--- !u!1 &74523491
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 74523493}
+  - component: {fileID: 74523492}
+  m_Layer: 0
+  m_Name: Wall Object Pool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &74523492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 74523491}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa1ed95805f5fc24e902534965d003cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObjectToPool: {fileID: 521826216782946426, guid: 18e871efeeb4ebb4ca18caf4ec40469f,
+    type: 3}
+  InitialAmount: 0
+--- !u!4 &74523493
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 74523491}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 19
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &88897456
 GameObject:
   m_ObjectHideFlags: 0
@@ -7205,6 +7251,8 @@ GameObject:
   - component: {fileID: 1779964216}
   - component: {fileID: 1779964215}
   - component: {fileID: 1779964217}
+  - component: {fileID: 1779964219}
+  - component: {fileID: 1779964218}
   m_Layer: 0
   m_Name: Grid manager
   m_TagString: Manager
@@ -7227,38 +7275,15 @@ MonoBehaviour:
   floor: {fileID: 5953786871833855256, guid: 9d7c886a87cf83e4a93f28675369bbba, type: 3}
   GridSizeX: 7
   GridSizeY: 7
-  Element_0_0: {fileID: 0}
-  AllWallPoint: {fileID: 189212769}
-  Up_Wall: {fileID: 521826216782946426, guid: 18e871efeeb4ebb4ca18caf4ec40469f, type: 3}
-  Right_Wall: {fileID: 6220990903032293418, guid: c60d9a1ea8812614f94fafb70a4dd7bf,
-    type: 3}
-  Down_Wall: {fileID: 2532602752362462605, guid: fd0c8ed39439ee14bbb1a30a2e884668,
-    type: 3}
-  Left_Wall: {fileID: 7699047498003849588, guid: 6320e9115239f6a4280ec27162de4dd3,
-    type: 3}
-  Treasure: {fileID: 2851042434069813735, guid: ca5a2ba4a3e69d14f9bfc36b8c934a81,
-    type: 3}
+  wallObjectPool: {fileID: 74523492}
   Player: {fileID: 1480456200}
-  GuardObject: {fileID: 8708668415292035466, guid: 713ec77519878a440a5508aa4ded5a8a,
-    type: 3}
   Grate: {fileID: 6570495928763734644, guid: 65412842d244f9b488de71bd17c2dc15, type: 3}
-  TreasureRooms: 3
-  TreasureNodes: []
-  TreasureModels:
-  - {fileID: 3379095423141253886, guid: d53d5ce9535b6e640877875d1a104ee0, type: 3}
-  - {fileID: 6029527500789979507, guid: 69df38b0d8095a545a8d19e6e9236bff, type: 3}
-  - {fileID: 1668089385719061197, guid: 2e353aae8866ab74c83326a08e139de7, type: 3}
-  - {fileID: 8098361184980105246, guid: 0175159210411ec45942da285ac65fd9, type: 3}
-  - {fileID: 2391769200981602369, guid: 0a874169bcb44a94880d0e5542f901bd, type: 3}
-  MinTreasureAmount: 0
-  MaxTreasureAmount: 0
-  GuardsToStand: 1
-  GuardsToWalk: 2
-  wayPointsInPath: 3
   RoomsInFloor: 10
   Mini_map_renderer: {fileID: 729667223}
   FullRadius: {x: 60, y: 60}
   FullSize: 35
+  allPaths: {fileID: 11400000, guid: cb55c4aec95177b4d9f684c30f40b40b, type: 2}
+  cornerRooms: {fileID: 11400000, guid: 65b7323aa1705cc42b2790ba01d04a2f, type: 2}
 --- !u!4 &1779964213
 Transform:
   m_ObjectHideFlags: 0
@@ -7292,7 +7317,9 @@ MonoBehaviour:
   ExitCondition: 0
   Current_Game_State: 0
   difficultyScale: 1
-  MG: {fileID: 0}
+  MazeGen: {fileID: 0}
+  TreasureGen: {fileID: 0}
+  GuardGen: {fileID: 0}
   SS: {fileID: 0}
   CM: {fileID: 0}
   Player: {fileID: 0}
@@ -7429,6 +7456,46 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1779964218
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1779964211}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7e80b12012856041aa5b2ca6f9d1447, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GuardObject: {fileID: 0}
+  GuardsToStand: 1
+  GuardsToWalk: 2
+  wayPointsInPath: 3
+--- !u!114 &1779964219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1779964211}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b361074b7687dab44bb29e24560c108a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Treasure: {fileID: 2851042434069813735, guid: ca5a2ba4a3e69d14f9bfc36b8c934a81,
+    type: 3}
+  NoTreasureRooms: 3
+  TreasureNodes: []
+  treasureRooms: {fileID: 11400000, guid: b27ccb51f27857941adbd114cbba0525, type: 2}
+  cornerRoomsList: {fileID: 11400000, guid: 65b7323aa1705cc42b2790ba01d04a2f, type: 2}
+  TreasureModels:
+  - {fileID: 3379095423141253886, guid: d53d5ce9535b6e640877875d1a104ee0, type: 3}
+  - {fileID: 6029527500789979507, guid: 69df38b0d8095a545a8d19e6e9236bff, type: 3}
+  - {fileID: 1668089385719061197, guid: 2e353aae8866ab74c83326a08e139de7, type: 3}
+  MinTreasureAmount: 0
+  MaxTreasureAmount: 0
 --- !u!1 &1797290485
 GameObject:
   m_ObjectHideFlags: 0
