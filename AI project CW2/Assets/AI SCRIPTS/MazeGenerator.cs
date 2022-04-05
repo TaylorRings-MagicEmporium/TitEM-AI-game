@@ -14,34 +14,20 @@ public class MazeGenerator : MonoBehaviour
     // 2D metrix of all floors.
     List<List<FloorNode>> FloorMatrix = new List<List<FloorNode>>();
 
-    //all corner rooms of the current prim's maze
-    List<FloorNode> currentCornerRooms = new List<FloorNode>();
-
     public ObjectPool wallObjectPool;
-    public GameObject Treasure;
+
 
     // indicates the starting node of the floor
     FloorNode CurrentStartNode;
 
     // the player
     public GameObject Player;
-    public GameObject GuardObject;
+
     public GameObject Grate;
     GameObject Current_Grate_Object;
 
-    // treasure rooms contain treasure.
-    public int TreasureRooms = 3;
-    public List<FloorNode> TreasureNodes = new List<FloorNode>();
-    List<GameObject> TreasureItems = new List<GameObject>();
-    public List<GameObject> TreasureModels = new List<GameObject>();
 
-    public int MinTreasureAmount = 0;
-    public int MaxTreasureAmount = 0;
 
-    // specific guard info
-    public int GuardsToStand = 1;
-    public int GuardsToWalk = 2;
-    public int wayPointsInPath = 3;
 
     // current rooms used for floor
     public int RoomsInFloor = 24;
@@ -55,7 +41,9 @@ public class MazeGenerator : MonoBehaviour
     Vector2 maxRadius = new Vector2(0, 0);
 
     // all room nodes used in Prim's algorithm
-    List<FloorNode> AllFloorPaths = new List<FloorNode>();
+    public FloorNodeList allPaths;
+    public FloorNodeList cornerRooms;
+    //List<FloorNode> AllFloorPaths = new List<FloorNode>();
 
     // used to setup the floor once the scene is built
     void SetupFloor()
@@ -217,13 +205,13 @@ public class MazeGenerator : MonoBehaviour
                 Condition = false;
             }
         }
-        AllFloorPaths = new List<FloorNode>(UsedNodes); // updates AllFloorPaths of floors being used.
+        allPaths.AddList(UsedNodes); // updates AllFloorPaths of floors being used.
     }
 
     void GenerateFloor()
     {
         // generateFloor recieves data on the condition of the floor
-        Debug.Log("creating floor with:\n" + RoomsInFloor + " rooms\n" + GuardsToStand + " guards to stand\n" + GuardsToWalk + " guards to walk\ntreasure values between " + MinTreasureAmount + " and " + MaxTreasureAmount + "\n");
+        //Debug.Log("creating floor with:\n" + RoomsInFloor + " rooms\n" + GuardsToStand + " guards to stand\n" + GuardsToWalk + " guards to walk\ntreasure values between " + MinTreasureAmount + " and " + MaxTreasureAmount + "\n");
 
         RandomisedPrimsAlgorithm();
 
@@ -261,14 +249,14 @@ public class MazeGenerator : MonoBehaviour
                 for(int i = 0; i < 4; i++)
                 {
                     bool pathNotExist = !FloorMatrix[a][b].PathConnectors[i];
-                    bool roomAdjacent = FloorMatrix[a][b].GridConnectors[i];
+                    bool aRoomIsAdjacent = FloorMatrix[a][b].GridConnectors[i];
 
                     // if there is no path connected to a specific direction of the node...
                     if (pathNotExist)
                     {
                         count--;
                         // if there is a room in the specific direction...
-                        if (roomAdjacent)
+                        if (aRoomIsAdjacent)
                         {
                             bool wallNotPlaced = !FloorMatrix[a][b].GridConnectors[i].WallPlaced[(i + 2) % 4];
                             // if the room in the UP direction doesn't have a wall...   
@@ -297,14 +285,11 @@ public class MazeGenerator : MonoBehaviour
                 // if the room only contains 1 pathway, then it is a dead end and a possible place for the treasure
                 if(count == 1)
                 {
-                    currentCornerRooms.Add(FloorMatrix[a][b]);
+                    cornerRooms.Add(FloorMatrix[a][b]);
                 }
             }
         }
 
-        
-
-        //AddTreasureRooms(CornerRooms);
     }
     
     // resets floor data like the state of rooms, ALL walls and treasures. but it does not delete the original grid data. as it can be reused
@@ -321,12 +306,12 @@ public class MazeGenerator : MonoBehaviour
         // destroys all walls
         wallObjectPool.ResetObjectsState();
         //destroy all treaure items (combo of light, treasure model and collider)
-        foreach (GameObject g in TreasureItems)
-        {
-            Destroy(g);
-        }
-        TreasureItems.Clear();
-        TreasureNodes.Clear();
+        //foreach (GameObject g in TreasureItems)
+        //{
+        //    Destroy(g);
+        //}
+        //TreasureItems.Clear();
+        //TreasureNodes.Clear();
 
         // destroys all guards
         foreach(GameObject g in GameObject.FindGameObjectsWithTag("Guard"))
@@ -349,77 +334,80 @@ public class MazeGenerator : MonoBehaviour
     }
 
     // places guards for the floor
-    void PlaceGuards()
-    {
-        // Guard deployment - Stand - guards that will be given a specific waypoint and rotate
-        // these guards will only spawn in a room adjacent to a treasure room.
-        List<FloorNode> PossRooms = new List<FloorNode>();
-        Dictionary<FloorNode, FloorNode> test = new Dictionary<FloorNode, FloorNode>(); // used for quick, unique storing
-        for (int i = 0; i < TreasureNodes.Count; i++)
-        {
-            for (int b = 0; b < 4; b++)
-            {
-                if (TreasureNodes[i].PathConnectors[b])
-                {
-                    if(!TreasureNodes[i].GridConnectors[b].IsStartingRoom && !TreasureNodes[i].GridConnectors[b].IsTreasureRoom)
-                    {
-                        test[TreasureNodes[i].GridConnectors[b]] = TreasureNodes[i].GridConnectors[b];
-                    }
+    //void PlaceGuards()
+    //{
+    //    // Guard deployment - Stand - guards that will be given a specific waypoint and rotate
+    //    // these guards will only spawn in a room adjacent to a treasure room.
+    //    List<FloorNode> PossRooms = new List<FloorNode>();
 
-                }
-            }
-        }
+    //    // this block gets all adjacent rooms to treasure rooms. the dict is used to prevent dulplicates in the list.
+    //    Dictionary<FloorNode, FloorNode> test = new Dictionary<FloorNode, FloorNode>(); // used for quick, unique storing
+    //    //for (int i = 0; i < TreasureNodes.Count; i++)
+    //    //{
+    //    //    for (int b = 0; b < 4; b++)
+    //    //    {
+    //    //        if (TreasureNodes[i].PathConnectors[b])
+    //    //        {
+    //    //            if(!TreasureNodes[i].GridConnectors[b].IsStartingRoom && !TreasureNodes[i].GridConnectors[b].IsTreasureRoom)
+    //    //            {
+    //    //                test[TreasureNodes[i].GridConnectors[b]] = TreasureNodes[i].GridConnectors[b];
+    //    //            }
 
-        PossRooms.AddRange(test.Values);
+    //    //        }
+    //    //    }
+    //    //}
 
-        GameObject g;
-        for (int i = 0; i < GuardsToStand; i++)
-        {
-            int chosen = Random.Range(0, PossRooms.Count);
-            FloorNode node = PossRooms[chosen];
-            g = Instantiate(GuardObject, PossRooms[chosen].transform.parent.position + new Vector3(0, 1.5f, 0), Quaternion.identity);
-            g.AddComponent<Standing_Guard>();
-            g.GetComponent<Standing_Guard>().Start_Guard(); // initialises the guard
-            g.GetComponent<Standing_Guard>().StandingPoint = PossRooms[chosen].transform.parent.position + new Vector3(0, 1.5f, 0); // gives a guard a standing point for the floor
-            g.GetComponent<Standing_Guard>().Stand = true; // parent identifier on what type guard is
-            g.GetComponent<Standing_Guard>().BeginTurning(); // starts the guard's AI movement
-            g.GetComponent<Standing_Guard>().StartSuspicion(); // starting the guard's AI behaviour
-            PossRooms.RemoveAt(chosen); // removes the rooms so no duplicate guard.
+    //    PossRooms.AddRange(test.Values);
 
-        }
+    //    GameObject g;
+    //    for (int i = 0; i < GuardsToStand; i++)
+    //    {
+    //        int chosen = Random.Range(0, PossRooms.Count);
+    //        FloorNode node = PossRooms[chosen];
+    //        // MOVE THINGS INTO GRAPH
+    //        g = Instantiate(GuardObject, PossRooms[chosen].transform.position + new Vector3(0, 1.5f, 0), Quaternion.identity);
+    //        g.AddComponent<Standing_Guard>();
+    //        g.GetComponent<Standing_Guard>().Start_Guard(); // initialises the guard
+    //        g.GetComponent<Standing_Guard>().StandingPoint = PossRooms[chosen].transform.position + new Vector3(0, 1.5f, 0); // gives a guard a standing point for the floor
+    //        g.GetComponent<Standing_Guard>().Stand = true; // parent identifier on what type guard is
+    //        g.GetComponent<Standing_Guard>().BeginTurning(); // starts the guard's AI movement
+    //        g.GetComponent<Standing_Guard>().StartSuspicion(); // starting the guard's AI behaviour
+    //        PossRooms.RemoveAt(chosen); // removes the rooms so no duplicate guard.
 
-        //Guard deployment - walking - guards that will be assigned waypoints to rotate and move about.
-        // these guards can spawn anywhere within the used rooms.
+    //    }
 
-        List<FloorNode> FloorPaths = new List<FloorNode>(AllFloorPaths);
+    //    //Guard deployment - walking - guards that will be assigned waypoints to rotate and move about.
+    //    // these guards can spawn anywhere within the used rooms.
 
-        for(int b = 0; b < GuardsToWalk; b++)
-        {
-            g = Instantiate(GuardObject);
-            g.AddComponent<Walking_Guard>();
-            g.GetComponent<Walking_Guard>().Waypoint = true;
+    //    List<FloorNode> FloorPaths = allPaths.GetList();
 
-            if(FloorPaths.Count < wayPointsInPath) // fail safe if there is not enough rooms to place a guard (given the amount of waypoints needed)
-            {
-                break;
-            }
+    //    for(int b = 0; b < GuardsToWalk; b++)
+    //    {
+    //        g = Instantiate(GuardObject);
+    //        g.AddComponent<Walking_Guard>();
+    //        g.GetComponent<Walking_Guard>().Waypoint = true;
 
-            for (int i = 0; i < wayPointsInPath; i++) // chooses a number of waypoints (floor nodes) to ping-pong to.
-            {
-                int chos = Random.Range(0, FloorPaths.Count);
+    //        if(FloorPaths.Count < wayPointsInPath) // fail safe if there is not enough rooms to place a guard (given the amount of waypoints needed)
+    //        {
+    //            break;
+    //        }
 
-
-                g.GetComponent<Walking_Guard>().waypoints.Add(FloorPaths[chos].transform.parent.position + new Vector3(0, 1.5f, 0));
-                FloorPaths.RemoveAt(chos);
+    //        for (int i = 0; i < wayPointsInPath; i++) // chooses a number of waypoints (floor nodes) to ping-pong to.
+    //        {
+    //            int chos = Random.Range(0, FloorPaths.Count);
 
 
-            }
-            g.GetComponent<Walking_Guard>().Start_Guard(); // initialises the guard
-            g.GetComponent<Walking_Guard>().BeginWalking(); // start's the guard's AI movement
-            g.GetComponent<Walking_Guard>().StartSuspicion(); // start's the guard's AI behaviour
-        }
+    //            g.GetComponent<Walking_Guard>().waypoints.Add(FloorPaths[chos].transform.position + new Vector3(0, 1.5f, 0));
+    //            FloorPaths.RemoveAt(chos);
 
-    }
+
+    //        }
+    //        g.GetComponent<Walking_Guard>().Start_Guard(); // initialises the guard
+    //        g.GetComponent<Walking_Guard>().BeginWalking(); // start's the guard's AI movement
+    //        g.GetComponent<Walking_Guard>().StartSuspicion(); // start's the guard's AI behaviour
+    //    }
+
+    //}
 
     // adjusts the ortho camera to fit all used floors into the render texture (mini-map)
     // maths is based on manual values of floor node radius, max floor size and max camera size
@@ -442,33 +430,33 @@ public class MazeGenerator : MonoBehaviour
     }
 
     // adds treasure rooms that will contain a treasure to collect
-    public void AddTreasureRooms(List<FloorNode> rooms)
-    {
-        for (int i = 0; i < TreasureRooms; i++)
-        {
+    //public void AddTreasureRooms(List<FloorNode> rooms)
+    //{
+    //    for (int i = 0; i < TreasureRooms; i++)
+    //    {
 
-            int idx = Random.Range(0, rooms.Count);
+    //        int idx = Random.Range(0, rooms.Count);
 
-            TreasureNodes.Add(rooms[idx]);
-            TreasureNodes[i].IsTreasureRoom = true; // modifies the floor node to be treasure node
+    //        TreasureNodes.Add(rooms[idx]);
+    //        TreasureNodes[i].IsTreasureRoom = true; // modifies the floor node to be treasure node
 
-            GameObject g = Instantiate(Treasure, TreasureNodes[i].transform.position, Quaternion.identity);
-            g.GetComponent<Treasure_Info>().NodeLoc = TreasureNodes[i];
+    //        GameObject g = Instantiate(Treasure, TreasureNodes[i].transform.position, Quaternion.identity);
+    //        g.GetComponent<Treasure_Info>().NodeLoc = TreasureNodes[i];
 
-            int randModel = Random.Range(0, TreasureModels.Count); // chooses a random model to present
-            Instantiate(TreasureModels[randModel], g.GetComponent<Treasure_Info>().Treasure_Holder.transform);
-            g.GetComponent<Treasure_Info>().TresName = TreasureModels[randModel].name;
-            g.GetComponent<Treasure_Info>().value = Random.Range(MinTreasureAmount, MaxTreasureAmount); // assigns a value based on game-manager's conditions
-            TreasureItems.Add(g);
-            rooms.RemoveAt(idx); // removes the rooms ro prevent duplicate
-        }
-    }
+    //        int randModel = Random.Range(0, TreasureModels.Count); // chooses a random model to present
+    //        Instantiate(TreasureModels[randModel], g.GetComponent<Treasure_Info>().Treasure_Holder.transform);
+    //        g.GetComponent<Treasure_Info>().TresName = TreasureModels[randModel].name;
+    //        g.GetComponent<Treasure_Info>().value = Random.Range(MinTreasureAmount, MaxTreasureAmount); // assigns a value based on game-manager's conditions
+    //        TreasureItems.Add(g);
+    //        rooms.RemoveAt(idx); // removes the rooms ro prevent duplicate
+    //    }
+    //}
 
     // Start is called before the first frame update
     void Start()
     {
-        SetupFloor();
-        Create_Floor_Level();
+        //SetupFloor();
+        //Create_Floor_Level();
     }
 
     // resets the floor back to it's initial state
@@ -480,10 +468,11 @@ public class MazeGenerator : MonoBehaviour
     // creates a new floor with walls, guards and treasure
     public void Create_Floor_Level()
     {
+        SetupFloor();
         GenerateFloor();
         AdjustMapRenderer();
-        AddTreasureRooms(currentCornerRooms);
-        PlacePlayer();
+        //AddTreasureRooms(currentCornerRooms);
+        //PlacePlayer();
         //PlaceGuards();
     }
 }
