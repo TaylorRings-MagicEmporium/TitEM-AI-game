@@ -10,7 +10,9 @@ public class GuardGenerator : MonoBehaviour
     public int GuardsToWalk = 2;
     public int wayPointsInPath = 3;
 
-    void PlaceGuards(FloorNodeList allTreasureRooms, FloorNodeList allPaths)
+    public FloorNodeList allTreasureRooms;
+    public FloorNodeList allPaths;
+    public void PlaceGuards()
     {
         // Guard deployment - Stand - guards that will be given a specific waypoint and rotate
         // these guards will only spawn in a room adjacent to a treasure room.

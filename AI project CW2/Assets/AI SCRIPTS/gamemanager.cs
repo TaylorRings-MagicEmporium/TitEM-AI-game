@@ -81,9 +81,11 @@ public class gamemanager : MonoBehaviour
     {
         MazeGen.Reset_Floor_Level();
         TreasureGen.ResetTreasureRooms();
+
         MazeGen.Create_Floor_Level();
         navMeshGen.UpdateNavMesh();
         TreasureGen.AddTreasureRooms();
+        GuardGen.PlaceGuards();
     }
 
     // Update is called once per frame
