@@ -37,7 +37,6 @@ public class GenericListSO<T> : ScriptableObject
     private void OnEnable()
     {
         hideFlags = HideFlags.DontUnloadUnusedAsset;
-        ClearList();
     }
 
     public void AddList(List<T> addedObjects)

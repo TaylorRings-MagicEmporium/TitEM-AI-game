@@ -25,6 +25,8 @@ public class TreasureRoomGenerator : MonoBehaviour
         }
         TreasureItems.Clear();
         TreasureNodes.Clear();
+
+        treasureRooms.ClearList();
     }
 
     public void AddTreasureRooms()

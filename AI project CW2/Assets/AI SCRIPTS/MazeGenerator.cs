@@ -305,23 +305,19 @@ public class MazeGenerator : MonoBehaviour
 
         // destroys all walls
         wallObjectPool.ResetObjectsState();
-        //destroy all treaure items (combo of light, treasure model and collider)
-        //foreach (GameObject g in TreasureItems)
+
+        allPaths.ClearList();
+        cornerRooms.ClearList();
+
+        // destroys all guards
+        //foreach(GameObject g in GameObject.FindGameObjectsWithTag("Guard"))
         //{
         //    Destroy(g);
         //}
-        //TreasureItems.Clear();
-        //TreasureNodes.Clear();
-
-        // destroys all guards
-        foreach(GameObject g in GameObject.FindGameObjectsWithTag("Guard"))
-        {
-            Destroy(g);
-        }
 
         //destroys grate object for player to begin in.
-        Destroy(Current_Grate_Object);
-        Current_Grate_Object = null;
+        //Destroy(Current_Grate_Object);
+        //Current_Grate_Object = null;
         
     }
 
@@ -432,8 +428,7 @@ public class MazeGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //SetupFloor();
-        //Create_Floor_Level();
+        SetupFloor();
     }
 
     // resets the floor back to it's initial state
@@ -445,7 +440,6 @@ public class MazeGenerator : MonoBehaviour
     // creates a new floor with walls, guards and treasure
     public void Create_Floor_Level()
     {
-        SetupFloor();
         GenerateFloor();
         AdjustMapRenderer();
         //AddTreasureRooms(currentCornerRooms);
