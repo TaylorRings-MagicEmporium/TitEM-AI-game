@@ -26,7 +26,7 @@ public class MazeGenerator : MonoBehaviour
     public GameObject Grate;
     GameObject Current_Grate_Object;
 
-
+    public GameObject floorHolderParent;
 
 
     // current rooms used for floor
@@ -55,7 +55,7 @@ public class MazeGenerator : MonoBehaviour
 
             for (int x = 0; x < GridSizeX; x++)  // going by rows first...
             {
-                FloorNode ptr = Instantiate(floor).GetComponent<FloorNode>();
+                FloorNode ptr = Instantiate(floor, floorHolderParent.transform).GetComponent<FloorNode>();
                 row.Add(ptr);
                 ptr.transform.position = transform.position + new Vector3(10 * x, 0, -10 * y);
                 ptr.GridLoc = new Vector2(x, y);
@@ -428,29 +428,6 @@ public class MazeGenerator : MonoBehaviour
         Mini_map_renderer.orthographicSize = FullSize * Mathf.Max(diff.x, diff.y) + 1; //affect fullSize by the max percentage of difference and add 1 for border
         Mini_map_renderer.transform.position = new Vector3(newPos.x+minRadius.x, 60.0f, newPos.y+minRadius.y); // places camera in middle of new floor
     }
-
-    // adds treasure rooms that will contain a treasure to collect
-    //public void AddTreasureRooms(List<FloorNode> rooms)
-    //{
-    //    for (int i = 0; i < TreasureRooms; i++)
-    //    {
-
-    //        int idx = Random.Range(0, rooms.Count);
-
-    //        TreasureNodes.Add(rooms[idx]);
-    //        TreasureNodes[i].IsTreasureRoom = true; // modifies the floor node to be treasure node
-
-    //        GameObject g = Instantiate(Treasure, TreasureNodes[i].transform.position, Quaternion.identity);
-    //        g.GetComponent<Treasure_Info>().NodeLoc = TreasureNodes[i];
-
-    //        int randModel = Random.Range(0, TreasureModels.Count); // chooses a random model to present
-    //        Instantiate(TreasureModels[randModel], g.GetComponent<Treasure_Info>().Treasure_Holder.transform);
-    //        g.GetComponent<Treasure_Info>().TresName = TreasureModels[randModel].name;
-    //        g.GetComponent<Treasure_Info>().value = Random.Range(MinTreasureAmount, MaxTreasureAmount); // assigns a value based on game-manager's conditions
-    //        TreasureItems.Add(g);
-    //        rooms.RemoveAt(idx); // removes the rooms ro prevent duplicate
-    //    }
-    //}
 
     // Start is called before the first frame update
     void Start()

@@ -34,6 +34,7 @@ public class gamemanager : MonoBehaviour
     public MazeGenerator MazeGen; // used for generating floors
     public TreasureRoomGenerator TreasureGen;
     public GuardGenerator GuardGen;
+    public NavMeshBuilder navMeshGen;
     public ScreenSwitcher SS; // used to switch screens easily
     public CashManager CM; // used to manage the result screen and how the cash is collected
 
@@ -60,6 +61,7 @@ public class gamemanager : MonoBehaviour
         GuardGen = GetComponent<GuardGenerator>();
 
         MazeGen.Create_Floor_Level();
+        navMeshGen.UpdateNavMesh();
         TreasureGen.AddTreasureRooms();
 
 
