@@ -15,14 +15,13 @@ public class ObjectPool : MonoBehaviour
         for(int i = 0; i < InitialAmount; i++)
         {
             objects.Add(Instantiate(ObjectToPool,transform));
-            //objects[i].transform.parent = transform;
             objects[i].SetActive(false);
         }
     }
 
     public GameObject RequestObject()
     {
-        foreach(GameObject g in objects)
+        foreach (GameObject g in objects)
         {
             if (!g.activeInHierarchy)
             {

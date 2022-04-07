@@ -265,7 +265,7 @@ public class MazeGenerator : MonoBehaviour
                                 // then spawn a wall and alert both rooms that there is a wall there. this is to prevent two walls spawning in the same place and reduces resources.
                                 g = wallObjectPool.RequestObject();
                                 g.transform.position = FloorMatrix[a][b].transform.position;
-                                g.transform.Rotate(0, i * 90, 0);
+                                g.transform.rotation = Quaternion.Euler(0, i * 90, 0);
                                 FloorMatrix[a][b].GridConnectors[i].WallPlaced[(i + 2) % 4] = true;
                                 FloorMatrix[a][b].WallPlaced[i] = true;
                             }
@@ -275,7 +275,7 @@ public class MazeGenerator : MonoBehaviour
                             //spawn a wall but only alert the current room. this is a boundry room, meaning that there is no rooms beyond that point in that direction.
                             g = wallObjectPool.RequestObject();
                             g.transform.position = FloorMatrix[a][b].transform.position;
-                            g.transform.Rotate(0, i * 90, 0);
+                            g.transform.rotation = Quaternion.Euler(0, i * 90, 0);
 
                             FloorMatrix[a][b].WallPlaced[i] = true;
                         }
