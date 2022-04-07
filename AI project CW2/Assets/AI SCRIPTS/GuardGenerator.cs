@@ -42,6 +42,12 @@ public class GuardGenerator : MonoBehaviour
         GameObject g;
         for (int i = 0; i < GuardsToStand; i++)
         {
+            if(PossRooms.Count == 0)
+            {
+                Debug.LogWarning("WARNING: not enough possible rooms avaliable, stopping standing guards at: " + i, this);
+                break;
+            }
+
             int chosen = Random.Range(0, PossRooms.Count);
             FloorNode node = PossRooms[chosen];
             // MOVE THINGS INTO GRAPH
@@ -63,14 +69,17 @@ public class GuardGenerator : MonoBehaviour
 
         for (int b = 0; b < GuardsToWalk; b++)
         {
+            if (FloorPaths.Count < wayPointsInPath) // fail safe if there is not enough rooms to place a guard (given the amount of waypoints needed)
+            {
+                Debug.LogWarning("WARNING: not enough possible rooms avaliable", this);
+                break;
+            }
+
             g = Instantiate(GuardObject);
             g.AddComponent<Walking_Guard>();
             g.GetComponent<Walking_Guard>().Waypoint = true;
 
-            if (FloorPaths.Count < wayPointsInPath) // fail safe if there is not enough rooms to place a guard (given the amount of waypoints needed)
-            {
-                break;
-            }
+
 
             for (int i = 0; i < wayPointsInPath; i++) // chooses a number of waypoints (floor nodes) to ping-pong to.
             {
@@ -87,5 +96,14 @@ public class GuardGenerator : MonoBehaviour
             g.GetComponent<Walking_Guard>().StartSuspicion(); // start's the guard's AI behaviour
         }
 
+    }
+
+    public void ResetGuards()
+    {
+        // destroys all guards
+        foreach (GameObject g in GameObject.FindGameObjectsWithTag("Guard"))
+        {
+            Destroy(g);
+        }
     }
 }

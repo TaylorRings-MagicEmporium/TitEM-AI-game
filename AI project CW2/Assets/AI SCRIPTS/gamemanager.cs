@@ -59,7 +59,7 @@ public class gamemanager : MonoBehaviour
         MazeGen = GetComponent<MazeGenerator>();
         TreasureGen = GetComponent<TreasureRoomGenerator>();
         GuardGen = GetComponent<GuardGenerator>();
-
+        
         //MazeGen.Create_Floor_Level();
         //navMeshGen.UpdateNavMesh();
         //TreasureGen.AddTreasureRooms();
@@ -81,11 +81,12 @@ public class gamemanager : MonoBehaviour
     {
         MazeGen.Reset_Floor_Level();
         TreasureGen.ResetTreasureRooms();
+        GuardGen.ResetGuards();
 
         MazeGen.Create_Floor_Level();
-        //navMeshGen.UpdateNavMesh();
-        //TreasureGen.AddTreasureRooms();
-        //GuardGen.PlaceGuards();
+        navMeshGen.UpdateNavMesh();
+        TreasureGen.AddTreasureRooms();
+        GuardGen.PlaceGuards();
     }
 
     // Update is called once per frame
