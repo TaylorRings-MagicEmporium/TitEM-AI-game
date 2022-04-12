@@ -106,6 +106,11 @@ public class Guard : MonoBehaviour
         }
     }
 
+    public void ResetGuard()
+    {
+        StopAllCoroutines();
+    }
+
     // runs every frame
     private void Update()
     {

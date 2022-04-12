@@ -35,11 +35,29 @@ public class ObjectPool : MonoBehaviour
         return objects[objects.Count - 1];
     }
 
+    public void ReturnObject(GameObject g)
+    {
+        if (objects.Contains(g))
+        {
+            g.SetActive(false);
+        }
+    }
+
     public void ResetObjectsState()
     {
         foreach(GameObject g in objects)
         {
             g.SetActive(false);
         }
+    }
+
+    public List<GameObject> GetActiveObjectsList()
+    {
+        List<GameObject> result = new List<GameObject>();
+        foreach(GameObject g in objects)
+        {
+            if(g.activeInHierarchy) result.Add(g);
+        }
+        return result;
     }
 }
