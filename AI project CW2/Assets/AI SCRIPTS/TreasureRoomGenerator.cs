@@ -59,4 +59,9 @@ public class TreasureRoomGenerator : MonoBehaviour
 
         treasureRooms.AddList(TreasureNodes);
     }
+
+    public int ActiveTreasureRooms()
+    {
+        return treasureRooms.GetList().Count;
+    }
 }

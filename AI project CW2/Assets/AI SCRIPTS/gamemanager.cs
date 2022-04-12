@@ -64,29 +64,33 @@ public class gamemanager : MonoBehaviour
         //navMeshGen.UpdateNavMesh();
         //TreasureGen.AddTreasureRooms();
 
-        Test_Maze();
+        //Test_Maze();
 
 
-        //AS = GetComponent<AudioSource>();
-        //SS = GetComponent<ScreenSwitcher>();
-        //SS.Self_Start();
-        //CM = GetComponent<CashManager>();
-        //StartCoroutine(CheckTotalSusLevel());
-        //UpdatePlayerStatus(Game_State.SELECT);
-        //Player = GameObject.FindGameObjectWithTag("Player");
+        AS = GetComponent<AudioSource>();
+        SS = GetComponent<ScreenSwitcher>();
+        SS.Self_Start();
+        CM = GetComponent<CashManager>();
+        StartCoroutine(CheckTotalSusLevel());
+        UpdatePlayerStatus(Game_State.SELECT);
+        Player = GameObject.FindGameObjectWithTag("Player");
 
     }
 
-    public void Test_Maze()
+    public void SetupMaze()
     {
-        MazeGen.Reset_Floor_Level();
-        TreasureGen.ResetTreasureRooms();
-        GuardGen.ResetGuards();
-
+        MazeGen.PlacePlayer();
         MazeGen.Create_Floor_Level();
         navMeshGen.UpdateNavMesh();
         TreasureGen.AddTreasureRooms();
         GuardGen.PlaceGuards();
+    }
+
+    public void ResetMaze()
+    {
+        MazeGen.Reset_Floor_Level();
+        TreasureGen.ResetTreasureRooms();
+        GuardGen.ResetGuards();
     }
 
     // Update is called once per frame
@@ -178,7 +182,7 @@ public class gamemanager : MonoBehaviour
         if(Current_Game_State == Game_State.ESCAPED) //result screen
         {
             Debug.Log("PLAY STATE TO ESCAPED");
-            //EndLevelConditions();
+            EndLevelConditions();
             SS.ActivateScreen("result");
             CM.DisplayMoneySummary();
             treasureCount = 0;
@@ -211,7 +215,7 @@ public class gamemanager : MonoBehaviour
             Debug.Log("PLAY STATE TO SELECT");
             AS.Stop();
             CM.FinishSummary();
-            MazeGen.Reset_Floor_Level();
+            ResetMaze();
             SS.ActivateScreen("select");
 
             // the if statements check that the right floor options are shown
@@ -260,7 +264,7 @@ public class gamemanager : MonoBehaviour
         floor_num = 0;
         treasureCount = 0;
         CM.Reset_Game();
-        MazeGen.Reset_Floor_Level();
+        ResetMaze();
 
         SecondLevelShow = false;
         ThirdLevelShow = false;
@@ -272,68 +276,69 @@ public class gamemanager : MonoBehaviour
     }
 
     // based on the floor option chosen, the difficultly scale increases and assigns new values for the maze generator
-    //public void AddDifficulty(float value)
-    //{
-    //    if(value == 0.09f)
-    //    {
-    //        floor_num += 3;
-    //    } else if(value == 0.06f)
-    //    {
-    //        floor_num += 2;
-    //    }
-    //    else
-    //    {
-    //        floor_num++;
-    //    }
+    public void AddDifficulty(float value)
+    {
+        if (value == 0.09f)
+        {
+            floor_num += 3;
+        }
+        else if (value == 0.06f)
+        {
+            floor_num += 2;
+        }
+        else
+        {
+            floor_num++;
+        }
 
-    //    difficultyScale += value;
-    //    UpdatePlayerStatus(Game_State.READY);
-    //    treasureCount = 0;
-    //    MG.MinTreasureAmount = (int)(20.0f * difficultyScale);
-    //    MG.MaxTreasureAmount = (int)(50.0f * difficultyScale);
-    //    int numOfRooms = (int)(10.0f * difficultyScale * 1.5);
-    //    if (numOfRooms > (MG.GridSizeX * MG.GridSizeY) - 6)
-    //    {
-    //        numOfRooms = (MG.GridSizeX * MG.GridSizeY) - 6;
-    //    }
-    //    if(MG.MinTreasureAmount > 450)
-    //    {
-    //        MG.MinTreasureAmount = 450;
-    //    }
-    //    if(MG.MaxTreasureAmount > 500)
-    //    {
-    //        MG.MaxTreasureAmount = 500;
-    //    }
-    //    MG.RoomsInFloor = numOfRooms;
+        difficultyScale += value;
+        UpdatePlayerStatus(Game_State.READY);
+        treasureCount = 0;
+        TreasureGen.MinTreasureAmount = (int)(20.0f * difficultyScale);
+        TreasureGen.MaxTreasureAmount = (int)(50.0f * difficultyScale);
+        int numOfRooms = (int)(10.0f * difficultyScale * 1.5);
+        if (numOfRooms > (MazeGen.GridSizeX * MazeGen.GridSizeY) - 6)
+        {
+            numOfRooms = (MazeGen.GridSizeX * MazeGen.GridSizeY) - 6;
+        }
+        if (TreasureGen.MinTreasureAmount > 450)
+        {
+            TreasureGen.MinTreasureAmount = 450;
+        }
+        if (TreasureGen.MaxTreasureAmount > 500)
+        {
+            TreasureGen.MaxTreasureAmount = 500;
+        }
+        MazeGen.RoomsInFloor = numOfRooms;
 
-    //    int temp = Mathf.FloorToInt((difficultyScale - 1) / 0.12f);
-    //    if(temp > 10)
-    //    {
-    //        temp = 10;
-    //    }
-    //    MG.GuardsToWalk = temp;
+        int temp = Mathf.FloorToInt((difficultyScale - 1) / 0.12f);
+        if (temp > 10)
+        {
+            temp = 10;
+        }
+        GuardGen.GuardsToWalk = temp;
 
 
-    //    MG.Create_Floor_Level();
-    //    Player.GetComponent<Player_Powers>().Reset_Level();
-    //}
+        SetupMaze();
+        Player.GetComponent<Player_Powers>().Reset_Level();
+    }
 
-    // if the player escapes, then the end level conditions are checked
-    //public void EndLevelConditions()
-    //{
-    //    if(Player.GetComponent<Player_Powers>().currentPowerLevel > Player.GetComponent<Player_Powers>().MaxPowerLevel * 0.9f)
-    //    {
-    //        CM.AddMoney("Little power used!", (int)(25 * difficultyScale)); // if only 10% of power was used, then they earn this bonus
-    //    }
-    //    if(treasureCount == MG.TreasureRooms)
-    //    {
-    //        CM.AddMoney("Collect All Treasure!", (int)(40 * difficultyScale)); // if they collect all of the treasure on the floor, then they earn this bonus
-    //    }
-    //    if (!HasPlayerBeenChased)
-    //    {
-    //        CM.AddMoney("Haven't Been Chased!", (int)(50 * difficultyScale)); // if the player has not been chased on the floor, then they earn this bonus.
-    //    }
-    //}
+     //if the player escapes, then the end level conditions are checked
+    public void EndLevelConditions()
+    {
+        if (Player.GetComponent<Player_Powers>().currentPowerLevel > Player.GetComponent<Player_Powers>().MaxPowerLevel * 0.9f)
+        {
+            CM.AddMoney("Little power used!", (int)(25 * difficultyScale)); // if only 10% of power was used, then they earn this bonus
+        }
+        if (treasureCount == TreasureGen.ActiveTreasureRooms())
+        {
+            CM.AddMoney("Collect All Treasure!", (int)(40 * difficultyScale)); // if they collect all of the treasure on the floor, then they earn this bonus
+        }
+        if (!HasPlayerBeenChased)
+        {
+            CM.AddMoney("Haven't Been Chased!", (int)(50 * difficultyScale)); // if the player has not been chased on the floor, then they earn this bonus.
+        }
+    }
 
     // checks if the player has reached the conditions to escape
     public void CheckExitCondition()

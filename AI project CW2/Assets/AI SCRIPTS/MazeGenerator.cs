@@ -45,6 +45,8 @@ public class MazeGenerator : MonoBehaviour
     public FloorNodeList cornerRooms;
     //List<FloorNode> AllFloorPaths = new List<FloorNode>();
 
+
+    public FloorNode start;
     // used to setup the floor once the scene is built
     void SetupFloor()
     {
@@ -95,12 +97,6 @@ public class MazeGenerator : MonoBehaviour
 
     void RandomisedPrimsAlgorithm()
     {
-        //starts a a random room
-        FloorNode start = FloorMatrix[Random.Range(0, GridSizeX - 1)][Random.Range(0, GridSizeY - 1)];
-        CurrentStartNode = start;
-        CurrentStartNode.IsStartingRoom = true;
-        start.Used = true;
-
 
         // initialise the unvisited nodes by looking at start location.
         List<FloorNode> UnvisitedNodes = new List<FloorNode>();
@@ -215,8 +211,6 @@ public class MazeGenerator : MonoBehaviour
 
         RandomisedPrimsAlgorithm();
 
-
-
         // wall and floor management
         // updates the floors in whether they will be used or not
         // instantiates walls for unique AI pathway, while making sure that only one instance of wall exists in a direction between two rooms.
@@ -310,14 +304,20 @@ public class MazeGenerator : MonoBehaviour
         cornerRooms.ClearList();
 
         //destroys grate object for player to begin in.
-        //Destroy(Current_Grate_Object);
-        //Current_Grate_Object = null;
-        
+        Destroy(Current_Grate_Object);
+        Current_Grate_Object = null;
+
     }
 
     // places player at the current start node with a Y offset and instantiate a grate for the player to begin in.
-    void PlacePlayer()
+    public void PlacePlayer()
     {
+        //starts a a random room
+        start = FloorMatrix[Random.Range(0, GridSizeX - 1)][Random.Range(0, GridSizeY - 1)];
+        CurrentStartNode = start;
+        CurrentStartNode.IsStartingRoom = true;
+        start.Used = true;
+
         Player.transform.position = CurrentStartNode.transform.position + new Vector3(0, 1.5f);
         Player.GetComponent<Player_Transition>().Player_Disabled();
         Current_Grate_Object = Instantiate(Grate, CurrentStartNode.transform.position, Quaternion.identity);

@@ -87,6 +87,7 @@ public class CashManager : MonoBehaviour
     IEnumerator ListValues()
     {
         int b = TotalRecieved.Count;
+        Debug.Log("total recieved: "+ b,this);
         for(int i = 0; i < b; i++)
         {
             MoneyNameValue curr = TotalRecieved.Dequeue();
