@@ -166,14 +166,6 @@ public class gamemanager : MonoBehaviour
 
     }
 
-    // if a guard spotted a treasure missing, then all guards are alerted of this disappearence
-    public void TreasureTakenRiseAlerts()
-    {
-        foreach(GameObject g in GameObject.FindGameObjectsWithTag("Guard"))
-        {
-            g.GetComponent<Guard>().TreasureStolenAlert();
-        }
-    }
 
     // this function changes how the game is played currently and is able to set screens up
     public void UpdatePlayerStatus(Game_State state)

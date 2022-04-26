@@ -57,6 +57,8 @@ public class Guard : MonoBehaviour
 
     gamemanager gm;
 
+    GameEventListener eventListener;
+
     // has a treasure been stolen?
     public bool TreasureStolen = false;
 
@@ -84,6 +86,9 @@ public class Guard : MonoBehaviour
         prevStates = BehaviourStates.PATROL;
         StartCoroutine(Behaviour_State_Update()); // starts behaviour change
         StartCoroutine(Behaviour_thoughts()); // start visually showing guard's thoughts
+        
+        eventListener = GetComponent<GameEventListener>();
+        eventListener.Response.AddListener(TreasureStolenAlert);
 
         // if true, then output regions where the player is seen via Debug
         if (Debug_lines)
@@ -202,17 +207,12 @@ public class Guard : MonoBehaviour
                     {
                         if (hitT.transform.CompareTag("Treasure")) // if the hit object was the treasure collider...
                         {
-                            float dot = Vector3.Dot((hitT.transform.position - transform.position).normalized, transform.forward);
-                            if (dot > Mathf.Cos(AngleLimit)) // if the treasure collider is within the guard's sight...
+                            if (hitT.transform.GetComponent<Treasure_Info>().IsTreasureTaken()) // if the treasure has been stolen, then alert all guards
                             {
-                                if (hitT.transform.GetComponent<Treasure_Info>().IsTreasureTaken()) // if the treasure has been stolen, then alert all guards
-                                {
-                                    // the treasure is taken! alert all guards!
-                                    gm.TreasureTakenRiseAlerts();
-                                    Debug.Log("TREASURE TAKEN");
-                                }
+                                // the treasure is taken! alert all guards!
+                                AP.OnTreasureStolen.Raise();
+                                Debug.Log("TREASURE TAKEN");
                             }
-
                         }
                     }
                 }
@@ -418,10 +418,7 @@ public class Guard : MonoBehaviour
     {
         TreasureStolen = true;
         MinimumLimit += 40.0f; // the minimum limit of the suspicion will be increased as there is missing treasure.
-        if(GuardSuspicionLevel < MinimumLimit)
-        {
-            GuardSuspicionLevel = 45.0f;
-        }
+        GuardSuspicionLevel = Mathf.Clamp(GuardSuspicionLevel + 5.0f, MinimumLimit, MaximumLimit);
     }
 
     // for visual representation of the current behaviour, a thought bubble will appear
