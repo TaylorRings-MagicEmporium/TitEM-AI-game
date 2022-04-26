@@ -94,7 +94,7 @@ public class Walking_Guard : Guard
     {
         base.Start_Guard();
 
-        BeginTurning();
+        BeginWalking();
         StartSuspicion();
     }
 }

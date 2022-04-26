@@ -182,7 +182,7 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 1
-  m_FillAmount: 0.976
+  m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -755,6 +755,7 @@ GameObject:
   - component: {fileID: 7795557858306549645}
   - component: {fileID: 1035093944707350316}
   - component: {fileID: 1164833308}
+  - component: {fileID: 3464531239268773753}
   m_Layer: 0
   m_Name: Guard
   m_TagString: Guard
@@ -877,16 +878,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a11e34863e3c0e441bb7a64c42eb971a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Suspicion_Display: {fileID: 1732805878}
-  Suspicion_Meter: {fileID: 1646189334}
-  canvas: {fileID: 1436092741}
   Line_Renderer: {fileID: 4947902584872846634}
-  thought_holder: {fileID: 2503822012707004150}
+  Debug: 0
+  Guard_ani: {fileID: 6140346916493975028}
+--- !u!114 &3464531239268773753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8708668415292035466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af34009133d241644bd66bce73d7627c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SuspicionDisplay: {fileID: 4749972121228801011}
+  SuspicionMeter: {fileID: 1646189335}
+  canvas: {fileID: 1436092741}
+  ThoughtHolder: {fileID: 8328205472713038906}
   guard_thoughts:
   - {fileID: 21300000, guid: 93d35f369c1b85a4da76647d37cafacf, type: 3}
   - {fileID: 21300000, guid: 3555891c7898d4a489d2910e3a2fb408, type: 3}
   - {fileID: 21300000, guid: 52a7f0ac3d4c61a43ac685c4e639a0f2, type: 3}
-  Guard_ani: {fileID: 6140346916493975028}
 --- !u!1 &9046883826389293847
 GameObject:
   m_ObjectHideFlags: 0

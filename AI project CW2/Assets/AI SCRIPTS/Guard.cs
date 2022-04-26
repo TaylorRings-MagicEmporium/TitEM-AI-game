@@ -39,8 +39,7 @@ public class Guard : MonoBehaviour
     public float SecondZoneLimit = 12.0f;
     public float ThirdZoneLimit = 15.0f;
 
-    //canvas offset
-    Vector3 Canvas_diff;
+    public GuardUI guardUI;
 
     //used for debugging
     public LineRenderer lr;
@@ -55,8 +54,6 @@ public class Guard : MonoBehaviour
 
     // is this a new behaviour for the guard (changed recently)
     bool StartBehaviour = false;
-    // visual representation of the suspicion level.
-    public GameObject Suspicion_Meter;
 
     gamemanager gm;
 
@@ -81,9 +78,8 @@ public class Guard : MonoBehaviour
         Debug_lines = AP.Debug;
         agent = GetComponent<NavMeshAgent>();
         Player = GameObject.FindGameObjectWithTag("Player");
-        Suspicion_Meter = AP.Suspicion_Meter;
+        guardUI = GetComponent<GuardUI>();
 
-        Canvas_diff = AP.canvas.transform.position - transform.position;
         currentStates = BehaviourStates.PATROL;
         prevStates = BehaviourStates.PATROL;
         StartCoroutine(Behaviour_State_Update()); // starts behaviour change
@@ -121,12 +117,6 @@ public class Guard : MonoBehaviour
             rotateCounter += 0.05f;
         }
 
-        // update the visuals of suspicion's level
-        Suspicion_Meter.GetComponent<Image>().fillAmount = (GuardSuspicionLevel / 100.0f); //  not all the time!
-
-        // constantly make canvas appear above guard at the same rotation.
-        AP.canvas.transform.position = transform.position + Canvas_diff;
-
         Behaviour_Response();
     }
 
@@ -161,25 +151,20 @@ public class Guard : MonoBehaviour
                                     if (hit.distance <= FirstZoneLimit) // the closest zone
                                     {
                                         //increase 3x
-                                        GuardSuspicionLevel += 27.0f;
+                                        IncreaseGuardLevel(27.0f);
 
                                     }
                                     else if (hit.distance <= SecondZoneLimit) // the midway zone
                                     {
                                         // increase 2x
-                                        GuardSuspicionLevel += 16.0f;
+                                        IncreaseGuardLevel(16.0f);
 
                                     }
                                     else // the fartherest zone
                                     {
                                         //increase 1x
-                                        GuardSuspicionLevel += 7.0f;
+                                        IncreaseGuardLevel(7.0f);
 
-                                    }
-
-                                    if (GuardSuspicionLevel > MaximumLimit) // limits the suspicion level to the max it can be
-                                    {
-                                        GuardSuspicionLevel = 100.0f;
                                     }
                                 }
                                 else
@@ -196,7 +181,7 @@ public class Guard : MonoBehaviour
                         {
                             if (len <= 5.0f) // if the player is still close to the guard, then classify it as "hearing" something
                             {
-                                GuardSuspicionLevel += 2.0f;
+                                IncreaseGuardLevel(2.0f);
                             }
                             else
                             {
@@ -248,12 +233,17 @@ public class Guard : MonoBehaviour
         else
         {
             GuardSuspicionLevel -= 2.0f;
-            if (GuardSuspicionLevel < MinimumLimit)
-            {
-                GuardSuspicionLevel = MinimumLimit;
-            }
         }
 
+        GuardSuspicionLevel = Mathf.Clamp(GuardSuspicionLevel, MinimumLimit, MaximumLimit);
+        guardUI.ChangeSuspicionFillAmount(GuardSuspicionLevel, MaximumLimit);
+    }
+
+    void IncreaseGuardLevel(float addedValue)
+    {
+        GuardSuspicionLevel += addedValue;
+        GuardSuspicionLevel = Mathf.Clamp(GuardSuspicionLevel, MinimumLimit, MaximumLimit);
+        guardUI.ChangeSuspicionFillAmount(GuardSuspicionLevel, MaximumLimit);
     }
 
     // determines what the behaviour should be based on the suspicion levels
@@ -439,24 +429,23 @@ public class Guard : MonoBehaviour
     {
 
 
-        Image thought_holder = AP.thought_holder.GetComponent<Image>();
         int wait;
-        thought_holder.enabled = false;
+        guardUI.ToggleThoughtImage(false);
         // randomly waits for time to make the thoughts more authentic
         while (true)
         {
             wait = 2;
-            if (thought_holder.enabled)
+            if (guardUI.GetThoughtImageActiveState())
             {
-                thought_holder.enabled = false;
+                guardUI.ToggleThoughtImage(false);
                 wait = 3;
             }
             else
             {
                 if (Random.Range(0, 10) > 5)
                 {
-                    thought_holder.sprite = AP.guard_thoughts[(int)currentStates];
-                    thought_holder.enabled = true;
+                    guardUI.ChangeThoughtImage((int)currentStates);
+                    guardUI.ToggleThoughtImage(true);
                     wait = 4;
                 }
                 else
