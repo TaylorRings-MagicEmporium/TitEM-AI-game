@@ -73,7 +73,7 @@ public class Guard : MonoBehaviour
     protected Access_Points AP;
 
     // initialises the guard to begin patrolling.
-    public void Start_Guard()
+    public virtual void Start_Guard()
     {
         // attaches the Guard to the gamemanager
         gm = GameObject.FindGameObjectWithTag("Manager").GetComponent<gamemanager>();
@@ -122,7 +122,7 @@ public class Guard : MonoBehaviour
         }
 
         // update the visuals of suspicion's level
-        Suspicion_Meter.GetComponent<Image>().fillAmount = (GuardSuspicionLevel / 100.0f);
+        Suspicion_Meter.GetComponent<Image>().fillAmount = (GuardSuspicionLevel / 100.0f); //  not all the time!
 
         // constantly make canvas appear above guard at the same rotation.
         AP.canvas.transform.position = transform.position + Canvas_diff;

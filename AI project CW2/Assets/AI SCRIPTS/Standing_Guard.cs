@@ -41,4 +41,12 @@ public class Standing_Guard : Guard
         StopCoroutine(Current_Behaviour_Enum);
         Current_Behaviour_Enum = StartCoroutine(WaypointTurning());
     }
+
+    public override void Start_Guard()
+    {
+        base.Start_Guard();
+
+        BeginTurning();
+        StartSuspicion();
+    }
 }
