@@ -12,8 +12,16 @@ public class GuardGenerator : MonoBehaviour
 
     public FloorNodeList allTreasureRooms;
     public FloorNodeList allPaths;
+
+    public List<SOGuardData> allGuardData = new List<SOGuardData>();
     public void PlaceGuards()
     {
+        if(allGuardData.Count == 0)
+        {
+            Debug.LogError("ERROR: No Guard data to use! Consider making and filling the list!", this);
+            return;
+        }
+
         // Guard deployment - Stand - guards that will be given a specific waypoint and rotate
         // these guards will only spawn in a room adjacent to a treasure room.
         List<FloorNode> PossRooms = new List<FloorNode>();
@@ -55,9 +63,8 @@ public class GuardGenerator : MonoBehaviour
             g.AddComponent<Standing_Guard>();
             g.GetComponent<Standing_Guard>().StandingPoint = PossRooms[chosen].transform.position + new Vector3(0, 1.5f, 0); // gives a guard a standing point for the floor
             g.GetComponent<Standing_Guard>().Stand = true; // parent identifier on what type guard is
+            g.GetComponent<Standing_Guard>().guardData = Instantiate(allGuardData[Random.Range(0, allGuardData.Count)]);
             g.GetComponent<Standing_Guard>().Start_Guard(); // initialises the guard
-            //g.GetComponent<Standing_Guard>().BeginTurning(); // starts the guard's AI movement
-            //g.GetComponent<Standing_Guard>().StartSuspicion(); // starting the guard's AI behaviour
             PossRooms.RemoveAt(chosen); // removes the rooms so no duplicate guard.
 
         }
@@ -78,6 +85,7 @@ public class GuardGenerator : MonoBehaviour
             g = Instantiate(GuardObject);
             g.AddComponent<Walking_Guard>();
             g.GetComponent<Walking_Guard>().Waypoint = true;
+            g.GetComponent<Walking_Guard>().guardData = Instantiate(allGuardData[Random.Range(0, allGuardData.Count)]);
 
 
 
@@ -92,8 +100,6 @@ public class GuardGenerator : MonoBehaviour
 
             }
             g.GetComponent<Walking_Guard>().Start_Guard(); // initialises the guard
-            //g.GetComponent<Walking_Guard>().BeginWalking(); // start's the guard's AI movement
-            //g.GetComponent<Walking_Guard>().StartSuspicion(); // start's the guard's AI behaviour
         }
 
     }

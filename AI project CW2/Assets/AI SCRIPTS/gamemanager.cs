@@ -5,10 +5,6 @@ using UnityEngine.UI;
 
 public class gamemanager : MonoBehaviour
 {
-    // guard level regions which can depict the behaviour
-    public float PatrolToInvest = 45.0f;
-    public float InvestToChase = 80.0f;
-
     // visual description of the highest behaviour level
     public Text LevelState;
 

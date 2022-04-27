@@ -25,10 +25,6 @@ public class Guard : MonoBehaviour
 
     // a value that depicts how suspicious the guard is
     public float GuardSuspicionLevel = 0.0f;
-    
-    // minimum and maximum limit on suspicion levels
-    public float MinimumLimit = 0.0f;
-    public float MaximumLimit = 100.0f;
 
     // depicts how "wide" the guard can see
     public float AngleLimit = 45.0f;
@@ -40,6 +36,7 @@ public class Guard : MonoBehaviour
     public float ThirdZoneLimit = 15.0f;
 
     public GuardUI guardUI;
+    public SOGuardData guardData;
 
     //used for debugging
     public LineRenderer lr;
@@ -235,15 +232,15 @@ public class Guard : MonoBehaviour
             GuardSuspicionLevel -= 2.0f;
         }
 
-        GuardSuspicionLevel = Mathf.Clamp(GuardSuspicionLevel, MinimumLimit, MaximumLimit);
-        guardUI.ChangeSuspicionFillAmount(GuardSuspicionLevel, MaximumLimit);
+        GuardSuspicionLevel = Mathf.Clamp(GuardSuspicionLevel, guardData.MinimumLimit, guardData.MaximumLimit);
+        guardUI.ChangeSuspicionFillAmount(GuardSuspicionLevel, guardData.MaximumLimit);
     }
 
     void IncreaseGuardLevel(float addedValue)
     {
         GuardSuspicionLevel += addedValue;
-        GuardSuspicionLevel = Mathf.Clamp(GuardSuspicionLevel, MinimumLimit, MaximumLimit);
-        guardUI.ChangeSuspicionFillAmount(GuardSuspicionLevel, MaximumLimit);
+        GuardSuspicionLevel = Mathf.Clamp(GuardSuspicionLevel, guardData.MinimumLimit, guardData.MaximumLimit);
+        guardUI.ChangeSuspicionFillAmount(GuardSuspicionLevel, guardData.MaximumLimit);
     }
 
     // determines what the behaviour should be based on the suspicion levels
@@ -256,7 +253,7 @@ public class Guard : MonoBehaviour
             {
                 case BehaviourStates.PATROL:
 
-                    if (GuardSuspicionLevel > gm.PatrolToInvest) // if the level has risen to the investigation stage, then update behaviour
+                    if (GuardSuspicionLevel > guardData.LimitToPatrol) // if the level has risen to the investigation stage, then update behaviour
                     {
                         currentStates = BehaviourStates.INVESTIGATE;
                     }
@@ -264,11 +261,11 @@ public class Guard : MonoBehaviour
                     break;
                 case BehaviourStates.INVESTIGATE:
 
-                    if (GuardSuspicionLevel > gm.InvestToChase) // if the level has risen to the chase stage, then update behaviour
+                    if (GuardSuspicionLevel > guardData.LimitToInvestigate) // if the level has risen to the chase stage, then update behaviour
                     {
                         currentStates = BehaviourStates.CHASE;
                     }
-                    else if (GuardSuspicionLevel < gm.PatrolToInvest) // if the level has lowered to the patrol stage, then update behaviour
+                    else if (GuardSuspicionLevel < guardData.LimitToPatrol) // if the level has lowered to the patrol stage, then update behaviour
                     {
                         currentStates = BehaviourStates.PATROL;
                     }
@@ -276,7 +273,7 @@ public class Guard : MonoBehaviour
                     break;
                 case BehaviourStates.CHASE:
 
-                    if (GuardSuspicionLevel < gm.InvestToChase) // if the level has lowered to the investigation stage, then update behaviour
+                    if (GuardSuspicionLevel < guardData.LimitToInvestigate) // if the level has lowered to the investigation stage, then update behaviour
                     {
                         currentStates = BehaviourStates.INVESTIGATE;
                     }
@@ -417,8 +414,8 @@ public class Guard : MonoBehaviour
     public void TreasureStolenAlert()
     {
         TreasureStolen = true;
-        MinimumLimit += 40.0f; // the minimum limit of the suspicion will be increased as there is missing treasure.
-        GuardSuspicionLevel = Mathf.Clamp(GuardSuspicionLevel + 5.0f, MinimumLimit, MaximumLimit);
+        guardData.MinimumLimit += 40.0f; // the minimum limit of the suspicion will be increased as there is missing treasure.
+        GuardSuspicionLevel = Mathf.Clamp(GuardSuspicionLevel + 5.0f, guardData.MinimumLimit, guardData.MaximumLimit);
     }
 
     // for visual representation of the current behaviour, a thought bubble will appear
