@@ -13,5 +13,6 @@ public class Access_Points : MonoBehaviour
     public Animator Guard_ani;
 
     public GameEvent OnTreasureStolen;
+    public GameEvent OnPlayerCaptured;
 
 }

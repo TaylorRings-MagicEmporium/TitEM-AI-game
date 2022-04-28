@@ -883,6 +883,7 @@ MonoBehaviour:
   Debug: 0
   Guard_ani: {fileID: 6140346916493975028}
   OnTreasureStolen: {fileID: 11400000, guid: d41b4c0fc9072f242974612583bf3994, type: 2}
+  OnPlayerCaptured: {fileID: 11400000, guid: 86226974e9bd47b4eb5c43e7e5ec18ab, type: 2}
 --- !u!114 &3464531239268773753
 MonoBehaviour:
   m_ObjectHideFlags: 0

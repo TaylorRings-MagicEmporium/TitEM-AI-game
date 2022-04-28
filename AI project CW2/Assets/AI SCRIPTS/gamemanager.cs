@@ -55,16 +55,10 @@ public class gamemanager : MonoBehaviour
         MazeGen = GetComponent<MazeGenerator>();
         TreasureGen = GetComponent<TreasureRoomGenerator>();
         GuardGen = GetComponent<GuardGenerator>();
-        
-        //MazeGen.Create_Floor_Level();
-        //navMeshGen.UpdateNavMesh();
-        //TreasureGen.AddTreasureRooms();
-
-        //Test_Maze();
-
-
+     
         AS = GetComponent<AudioSource>();
         SS = GetComponent<ScreenSwitcher>();
+
         SS.Self_Start();
         CM = GetComponent<CashManager>();
         StartCoroutine(CheckTotalSusLevel());

@@ -57,9 +57,6 @@ public class Guard : MonoBehaviour
 
     GameEventListener eventListener;
 
-    public float MaxSightDistance = 15.0f;
-    public float MaxFeelDistance = 5.0f;
-
     // has a treasure been stolen?
     public bool TreasureStolen = false;
 
@@ -143,7 +140,7 @@ public class Guard : MonoBehaviour
                 if (!Player.GetComponent<Player_Powers>().InvisibilityOn) // if invisiblity is not on...
                 {
                     float len = (Player.transform.position - transform.position).sqrMagnitude;
-                    bool playerWithinLength = len <= Mathf.Pow(MaxSightDistance, 2);
+                    bool playerWithinLength = len <= Mathf.Pow(guardData.MaxSightDistance, 2);
 
                     float dot = Vector3.Dot((Player.transform.position - transform.position).normalized, transform.forward);
                     bool playerWithinSightRange = dot > Mathf.Cos(AngleLimit);
@@ -151,7 +148,7 @@ public class Guard : MonoBehaviour
                     if (playerWithinLength && playerWithinSightRange)
                     {
                         RaycastHit hit;
-                        if (Physics.Raycast(transform.position, Player.transform.position - transform.position, out hit, MaxSightDistance)) // if the guard can see something...
+                        if (Physics.Raycast(transform.position, Player.transform.position - transform.position, out hit, guardData.MaxSightDistance)) // if the guard can see something...
                         {
                             if (hit.transform.CompareTag("Player")) // if that object is the player itself, then add an amount of the guard suspicion level
                             {
@@ -184,7 +181,7 @@ public class Guard : MonoBehaviour
                             DecreaseGuardLevel(); // decrease the guard level
                         }
                     }
-                    else if(len <= Mathf.Pow(MaxFeelDistance,2))
+                    else if(len <= Mathf.Pow(guardData.MaxFeelDistance,2))
                     {
                         IncreaseGuardLevel(2.5f);
                     }
@@ -198,7 +195,7 @@ public class Guard : MonoBehaviour
                 {
 
                     RaycastHit hitT;
-                    if (Physics.Raycast(transform.position, transform.forward, out hitT, MaxSightDistance))
+                    if (Physics.Raycast(transform.position, transform.forward, out hitT, guardData.MaxSightDistance))
                     {
                         if (hitT.transform.CompareTag("Treasure")) // if the hit object was the treasure collider...
                         {
@@ -387,7 +384,7 @@ public class Guard : MonoBehaviour
         {
             if(currentStates == BehaviourStates.CHASE && !DisableGuard) // and the guard is in chase mode, then game over is called as the guard has captured the player
             {
-                gm.Game_Over_Called();
+                AP.OnPlayerCaptured.Raise();
             }
             else // if not, alert the guard that it just been touched
             {

@@ -13,4 +13,8 @@ public class SOGuardData : ScriptableObject
     public float MinimumLimit = 0;
     public float MaximumLimit = 0;
 
+    [Space]
+    public float MaxSightDistance = 0;
+    public float MaxFeelDistance = 0;
+
 }
