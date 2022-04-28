@@ -17,6 +17,9 @@ public class TreasureRoomGenerator : MonoBehaviour
     public int MinTreasureAmount = 0;
     public int MaxTreasureAmount = 0;
 
+    public int MinLimit = 0;
+    public int MaxLimit = 0;
+
     public void ResetTreasureRooms()
     {
         foreach (GameObject g in TreasureItems)
@@ -63,5 +66,14 @@ public class TreasureRoomGenerator : MonoBehaviour
     public int ActiveTreasureRooms()
     {
         return treasureRooms.GetList().Count;
+    }
+
+    public void SetTreasureRange(float newDifficultyScale)
+    {
+        MinTreasureAmount = (int)(20.0f * newDifficultyScale);
+        MaxTreasureAmount = (int)(50.0f * newDifficultyScale);
+
+        MinTreasureAmount = Mathf.Clamp(MinTreasureAmount, 0, 450);
+        MaxTreasureAmount = Mathf.Clamp(MaxTreasureAmount, 0, 500);
     }
 }

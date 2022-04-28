@@ -276,21 +276,13 @@ public class gamemanager : MonoBehaviour
         difficultyScale += value;
         UpdatePlayerStatus(Game_State.READY);
         treasureCount = 0;
-        TreasureGen.MinTreasureAmount = (int)(20.0f * difficultyScale);
-        TreasureGen.MaxTreasureAmount = (int)(50.0f * difficultyScale);
+
         int numOfRooms = (int)(10.0f * difficultyScale * 1.5);
         if (numOfRooms > (MazeGen.GridSizeX * MazeGen.GridSizeY) - 6)
         {
             numOfRooms = (MazeGen.GridSizeX * MazeGen.GridSizeY) - 6;
         }
-        if (TreasureGen.MinTreasureAmount > 450)
-        {
-            TreasureGen.MinTreasureAmount = 450;
-        }
-        if (TreasureGen.MaxTreasureAmount > 500)
-        {
-            TreasureGen.MaxTreasureAmount = 500;
-        }
+
         MazeGen.RoomsInFloor = numOfRooms;
 
         int temp = Mathf.FloorToInt((difficultyScale - 1) / 0.12f);
@@ -300,6 +292,7 @@ public class gamemanager : MonoBehaviour
         }
         GuardGen.GuardsToWalk = temp;
 
+        TreasureGen.SetTreasureRange(difficultyScale);
 
         SetupMaze();
         Player.GetComponent<Player_Powers>().Reset_Level();
