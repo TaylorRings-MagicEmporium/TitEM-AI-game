@@ -73,7 +73,7 @@ public class Guard : MonoBehaviour
     public float waitingTime = 1.0f;
 
     // initialises the guard to begin patrolling.
-    public virtual void Start_Guard()
+    public void Start_Guard()
     {
         // attaches the Guard to the gamemanager
         gm = GameObject.FindGameObjectWithTag("Manager").GetComponent<gamemanager>();
@@ -328,7 +328,7 @@ public class Guard : MonoBehaviour
     }
 
     // virtual function for beginning patrols (based on type of guard)
-    protected virtual void Begin_Patrol() 
+    protected void Begin_Patrol() 
     {
         if(Current_Behaviour_Enum != null)
         {
@@ -338,7 +338,7 @@ public class Guard : MonoBehaviour
     }
 
     // virtual function for beginning investigations
-    protected virtual void Begin_Investigate() {
+    protected void Begin_Investigate() {
 
         //Debug.Log("INVESTIGATING");
         turning = false;
@@ -349,7 +349,7 @@ public class Guard : MonoBehaviour
     }
 
     // virtual function for beginning chasing
-    protected virtual void Begin_Chase() {
+    protected void Begin_Chase() {
         //Debug.Log("CHASING");
         turning = false;
         StopCoroutine(Current_Behaviour_Enum);
