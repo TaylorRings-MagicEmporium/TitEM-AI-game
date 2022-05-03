@@ -18,3 +18,7 @@ MonoBehaviour:
   MaximumLimit: 100
   MaxSightDistance: 15
   MaxFeelDistance: 5
+  AngleLimit: 45
+  FirstZoneLimit: 7.5
+  SecondZoneLimit: 12
+  ThirdZoneLimit: 15

@@ -754,8 +754,8 @@ GameObject:
   - component: {fileID: 8788693779211225688}
   - component: {fileID: 7795557858306549645}
   - component: {fileID: 1035093944707350316}
-  - component: {fileID: 1164833308}
   - component: {fileID: 3464531239268773753}
+  - component: {fileID: 3049381360310676279}
   - component: {fileID: 6534681917610750586}
   m_Layer: 0
   m_Name: Guard
@@ -867,23 +867,6 @@ NavMeshAgent:
   m_BaseOffset: 1
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &1164833308
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8708668415292035466}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a11e34863e3c0e441bb7a64c42eb971a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Line_Renderer: {fileID: 4947902584872846634}
-  Debug: 0
-  Guard_ani: {fileID: 6140346916493975028}
-  OnTreasureStolen: {fileID: 11400000, guid: d41b4c0fc9072f242974612583bf3994, type: 2}
-  OnPlayerCaptured: {fileID: 11400000, guid: 86226974e9bd47b4eb5c43e7e5ec18ab, type: 2}
 --- !u!114 &3464531239268773753
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -904,6 +887,30 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 93d35f369c1b85a4da76647d37cafacf, type: 3}
   - {fileID: 21300000, guid: 3555891c7898d4a489d2910e3a2fb408, type: 3}
   - {fileID: 21300000, guid: 52a7f0ac3d4c61a43ac685c4e639a0f2, type: 3}
+--- !u!114 &3049381360310676279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8708668415292035466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a98652f596991774884960f354a10292, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GuardSuspicionLevel: 0
+  guardData: {fileID: 0}
+  lr: {fileID: 2849105161636197314}
+  currentStates: 0
+  TreasureStolen: 0
+  DisableGuard: 0
+  Debug_lines: 1
+  waypoints: []
+  waitingTime: 1
+  OnTreasureStolen: {fileID: 11400000, guid: d41b4c0fc9072f242974612583bf3994, type: 2}
+  OnPlayerCaptured: {fileID: 11400000, guid: 86226974e9bd47b4eb5c43e7e5ec18ab, type: 2}
+  Guard_ani: {fileID: 6140346916493975028}
 --- !u!114 &6534681917610750586
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -920,12 +927,12 @@ MonoBehaviour:
   Response:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_MethodName: 
+      - m_Target: {fileID: 3049381360310676279}
+        m_MethodName: TreasureStolenAlert
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 

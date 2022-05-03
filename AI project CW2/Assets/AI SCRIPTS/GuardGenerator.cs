@@ -60,9 +60,8 @@ public class GuardGenerator : MonoBehaviour
             FloorNode node = PossRooms[chosen];
             // MOVE THINGS INTO GRAPH
             g = Instantiate(GuardObject, PossRooms[chosen].transform.position + new Vector3(0, 1.5f, 0), Quaternion.identity);
-            g.AddComponent<Guard>();
             g.GetComponent<Guard>().waypoints.Add(PossRooms[chosen].transform.position + new Vector3(0, 1.5f, 0)); // gives a guard a standing point for the floor
-            g.GetComponent<Guard>().Stand = true; // parent identifier on what type guard is
+            //g.GetComponent<Guard>().Stand = true; // parent identifier on what type guard is
             g.GetComponent<Guard>().guardData = Instantiate(allGuardData[Random.Range(0, allGuardData.Count)]);
             g.GetComponent<Guard>().Start_Guard(); // initialises the guard
             PossRooms.RemoveAt(chosen); // removes the rooms so no duplicate guard.
@@ -83,11 +82,8 @@ public class GuardGenerator : MonoBehaviour
             }
 
             g = Instantiate(GuardObject);
-            g.AddComponent<Guard>();
-            g.GetComponent<Guard>().Waypoint = true;
+            //g.GetComponent<Guard>().Waypoint = true;
             g.GetComponent<Guard>().guardData = Instantiate(allGuardData[Random.Range(0, allGuardData.Count)]);
-
-
 
             for (int i = 0; i < wayPointsInPath; i++) // chooses a number of waypoints (floor nodes) to ping-pong to.
             {

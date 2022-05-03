@@ -4,38 +4,34 @@ using UnityEngine;
 using UnityEngine.AI;
 public class Guard : MonoBehaviour
 {
-    // bools based on type of guard
-    public bool Stand = false;
-    public bool Waypoint = false;
-
     // gets the agent for the guard and gets the player object
-    protected NavMeshAgent agent;
-    protected GameObject Player;
+    private NavMeshAgent agent;
+    private GameObject Player;
 
     // deduces whether the enemy should be turning or not.
-    protected bool turning = false;
-    
+    private bool turning = false;
+
     // used for lerping between previous rotation and new rotation.
-    protected Quaternion current;
-    protected Quaternion target;
-    
+    private Quaternion current;
+    private Quaternion target;
+
     // incrementer for rotation
-    protected float rotateCounter = 0;
+    private float rotateCounter = 0;
 
     // a value that depicts how suspicious the guard is
+    //[SerializeField]
     public float GuardSuspicionLevel = 0.0f;
 
 
-    // depicts how "wide" the guard can see
-    public float AngleLimit = 45.0f;
-    //public float val;
+    //// depicts how "wide" the guard can see
+    //public float AngleLimit = 45.0f;
 
-    // depicts the zones that the guard can see the player
-    public float FirstZoneLimit = 7.5f;
-    public float SecondZoneLimit = 12.0f;
-    public float ThirdZoneLimit = 15.0f;
+    //// depicts the zones that the guard can see the player
+    //public float FirstZoneLimit = 7.5f;
+    //public float SecondZoneLimit = 12.0f;
+    //public float ThirdZoneLimit = 15.0f;
 
-    public GuardUI guardUI;
+    GuardUI guardUI;
     public SOGuardData guardData;
 
     //used for debugging
@@ -49,11 +45,7 @@ public class Guard : MonoBehaviour
     // active corountine that specifies the behaviour actions of the guard currently.
     protected Coroutine Current_Behaviour_Enum;
 
-    // is this a new behaviour for the guard (changed recently)
-    bool StartBehaviour = false;
-
     gamemanager gm;
-
     GameEventListener eventListener;
 
     // has a treasure been stolen?
@@ -65,20 +57,19 @@ public class Guard : MonoBehaviour
     // should debug_lines be present?
     public bool Debug_lines;
 
-    // class containing gameobjects related to displaying guard info.
-    protected Access_Points AP;
-
     public List<Vector3> waypoints = new List<Vector3>();
     int waypoint_index = 0;
     public float waitingTime = 1.0f;
+
+    public GameEvent OnTreasureStolen;
+    public GameEvent OnPlayerCaptured;
+    public Animator Guard_ani;
 
     // initialises the guard to begin patrolling.
     public void Start_Guard()
     {
         // attaches the Guard to the gamemanager
         gm = GameObject.FindGameObjectWithTag("Manager").GetComponent<gamemanager>();
-        AP = GetComponent<Access_Points>();
-        Debug_lines = AP.Debug;
         agent = GetComponent<NavMeshAgent>();
         Player = GameObject.FindGameObjectWithTag("Player");
         guardUI = GetComponent<GuardUI>();
@@ -105,17 +96,16 @@ public class Guard : MonoBehaviour
         // if true, then output regions where the player is seen via Debug
         if (Debug_lines)
         {
-            lr = AP.Line_Renderer.GetComponent<LineRenderer>();
-            lr.SetPosition(1, Quaternion.Euler(0, AngleLimit, 0) * transform.forward * FirstZoneLimit); //positive extreme
-            lr.SetPosition(2, Quaternion.Euler(0, -AngleLimit, 0) * transform.forward * FirstZoneLimit); //negative extreme
-            lr.SetPosition(4, Quaternion.Euler(0, AngleLimit, 0) * transform.forward * SecondZoneLimit); //positive extreme
-            lr.SetPosition(5, Quaternion.Euler(0, -AngleLimit, 0) * transform.forward * SecondZoneLimit); //negative extreme
-            lr.SetPosition(7, Quaternion.Euler(0, AngleLimit, 0) * transform.forward * ThirdZoneLimit); //positive extreme
-            lr.SetPosition(8, Quaternion.Euler(0, -AngleLimit, 0) * transform.forward * ThirdZoneLimit); //negative extreme
+            lr.SetPosition(1, Quaternion.Euler(0, guardData.AngleLimit, 0) * transform.forward * guardData.FirstZoneLimit); //positive extreme
+            lr.SetPosition(2, Quaternion.Euler(0, -guardData.AngleLimit, 0) * transform.forward * guardData.FirstZoneLimit); //negative extreme
+            lr.SetPosition(4, Quaternion.Euler(0, guardData.AngleLimit, 0) * transform.forward * guardData.SecondZoneLimit); //positive extreme
+            lr.SetPosition(5, Quaternion.Euler(0, -guardData.AngleLimit, 0) * transform.forward * guardData.SecondZoneLimit); //negative extreme
+            lr.SetPosition(7, Quaternion.Euler(0, guardData.AngleLimit, 0) * transform.forward * guardData.ThirdZoneLimit); //positive extreme
+            lr.SetPosition(8, Quaternion.Euler(0, -guardData.AngleLimit, 0) * transform.forward * guardData.ThirdZoneLimit); //negative extreme
         }
         else
         {
-            AP.Line_Renderer.SetActive(false);
+            lr.enabled = false;
         }
     }
 
@@ -161,7 +151,7 @@ public class Guard : MonoBehaviour
                     bool playerWithinLength = len <= Mathf.Pow(guardData.MaxSightDistance, 2);
 
                     float dot = Vector3.Dot((Player.transform.position - transform.position).normalized, transform.forward);
-                    bool playerWithinSightRange = dot > Mathf.Cos(AngleLimit);
+                    bool playerWithinSightRange = dot > Mathf.Cos(guardData.AngleLimit);
 
                     if (playerWithinLength && playerWithinSightRange)
                     {
@@ -171,13 +161,13 @@ public class Guard : MonoBehaviour
                         {
                             if (hit.transform.CompareTag("Player")) // if that object is the player itself, then add an amount of the guard suspicion level
                             {
-                                if (hit.distance <= FirstZoneLimit) // the closest zone
+                                if (hit.distance <= guardData.FirstZoneLimit) // the closest zone
                                 {
                                     //increase 3x
                                     IncreaseGuardLevel(27.0f);
 
                                 }
-                                else if (hit.distance <= SecondZoneLimit) // the midway zone
+                                else if (hit.distance <= guardData.SecondZoneLimit) // the midway zone
                                 {
                                     // increase 2x
                                     IncreaseGuardLevel(16.0f);
@@ -221,7 +211,7 @@ public class Guard : MonoBehaviour
                             if (hitT.transform.GetComponent<Treasure_Info>().IsTreasureTaken()) // if the treasure has been stolen, then alert all guards
                             {
                                 // the treasure is taken! alert all guards!
-                                AP.OnTreasureStolen.Raise();
+                                OnTreasureStolen.Raise();
                                 Debug.Log("TREASURE TAKEN");
                             }
                         }
@@ -343,7 +333,7 @@ public class Guard : MonoBehaviour
         //Debug.Log("INVESTIGATING");
         turning = false;
         StopCoroutine(Current_Behaviour_Enum);
-        AP.Guard_ani.SetBool("IsMoving", false);
+        Guard_ani.SetBool("IsMoving", false);
         Current_Behaviour_Enum = StartCoroutine(InvestigateArea());
 
     }
@@ -353,7 +343,7 @@ public class Guard : MonoBehaviour
         //Debug.Log("CHASING");
         turning = false;
         StopCoroutine(Current_Behaviour_Enum);
-        AP.Guard_ani.SetBool("IsMoving", false);
+        Guard_ani.SetBool("IsMoving", false);
         Current_Behaviour_Enum = StartCoroutine(ChasePlayer());
     }
 
@@ -372,7 +362,7 @@ public class Guard : MonoBehaviour
             }
         }
 
-        AP.Guard_ani.SetBool("IsMoving", true); // set animation to walk
+        Guard_ani.SetBool("IsMoving", true); // set animation to walk
         while (true)
         {
             agent.SetDestination(Player.transform.position); // sets the position to the player's position.
@@ -395,11 +385,11 @@ public class Guard : MonoBehaviour
             NavMeshHit navHit;
             NavMesh.SamplePosition(randomDirection, out navHit, 5.0f,-1);
 
-            AP.Guard_ani.SetBool("IsMoving", true);
+            Guard_ani.SetBool("IsMoving", true);
             agent.SetDestination(navHit.position);
 
             yield return new WaitForSeconds(1.5f);
-            AP.Guard_ani.SetBool("IsMoving", false);
+            Guard_ani.SetBool("IsMoving", false);
         }
     }
 
@@ -410,7 +400,7 @@ public class Guard : MonoBehaviour
         {
             if(currentStates == BehaviourStates.CHASE && !DisableGuard) // and the guard is in chase mode, then game over is called as the guard has captured the player
             {
-                AP.OnPlayerCaptured.Raise();
+                OnPlayerCaptured.Raise();
             }
             else // if not, alert the guard that it just been touched
             {
@@ -509,7 +499,7 @@ public class Guard : MonoBehaviour
                 agent.SetDestination(waypoints[waypoint_index]); // sets the new postition to go to.
 
                 bool closeEnough = false;
-                AP.Guard_ani.SetBool("IsMoving", true);
+                Guard_ani.SetBool("IsMoving", true);
                 while (!closeEnough) // if close enough then stop walking and repeat turning
                 {
                     if ((transform.position - waypoints[waypoint_index]).magnitude < 1.0f)
@@ -518,7 +508,7 @@ public class Guard : MonoBehaviour
                     }
                     yield return new WaitForSeconds(0.5f);
                 }
-                AP.Guard_ani.SetBool("IsMoving", false);
+                Guard_ani.SetBool("IsMoving", false);
             }
 
         }
