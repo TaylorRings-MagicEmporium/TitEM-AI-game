@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1758fe968913bd84cbc6d718a55dfddd, type: 3}
   m_Name: Test Guard
   m_EditorClassIdentifier: 
-  LimitToPatrol: 0
-  LimitToInvestigate: 0
+  LimitToPatrol: 45
+  LimitToInvestigate: 80
   MinimumLimit: 0
-  MaximumLimit: 0
+  MaximumLimit: 100
+  MaxSightDistance: 15
+  MaxFeelDistance: 5

@@ -8148,6 +8148,7 @@ GameObject:
   - component: {fileID: 1779964217}
   - component: {fileID: 1779964219}
   - component: {fileID: 1779964218}
+  - component: {fileID: 1779964220}
   m_Layer: 0
   m_Name: Grid manager
   m_TagString: Manager
@@ -8207,8 +8208,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7706e1032cad0a42a99c23982baf722, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PatrolToInvest: 50
-  InvestToChase: 80
   LevelState: {fileID: 1424315823}
   HasPlayerBeenChased: 0
   ExitCondition: 0
@@ -8373,6 +8372,8 @@ MonoBehaviour:
   wayPointsInPath: 3
   allTreasureRooms: {fileID: 11400000, guid: b27ccb51f27857941adbd114cbba0525, type: 2}
   allPaths: {fileID: 11400000, guid: cb55c4aec95177b4d9f684c30f40b40b, type: 2}
+  allGuardData:
+  - {fileID: 11400000, guid: 09af972efc770b845a02e99c948cce97, type: 2}
 --- !u!114 &1779964219
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8397,6 +8398,35 @@ MonoBehaviour:
   - {fileID: 1668089385719061197, guid: 2e353aae8866ab74c83326a08e139de7, type: 3}
   MinTreasureAmount: 0
   MaxTreasureAmount: 0
+  MinLimit: 0
+  MaxLimit: 0
+--- !u!114 &1779964220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1779964211}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 049935bbc7a12404897deb2a92df3c43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Event: {fileID: 11400000, guid: 86226974e9bd47b4eb5c43e7e5ec18ab, type: 2}
+  Response:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1779964214}
+        m_MethodName: Game_Over_Called
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1797290485
 GameObject:
   m_ObjectHideFlags: 0

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.UI;
 public class Guard : MonoBehaviour
 {
     // bools based on type of guard
@@ -69,6 +68,10 @@ public class Guard : MonoBehaviour
     // class containing gameobjects related to displaying guard info.
     protected Access_Points AP;
 
+    public List<Vector3> waypoints = new List<Vector3>();
+    int waypoint_index = 0;
+    public float waitingTime = 1.0f;
+
     // initialises the guard to begin patrolling.
     public virtual void Start_Guard()
     {
@@ -80,13 +83,24 @@ public class Guard : MonoBehaviour
         Player = GameObject.FindGameObjectWithTag("Player");
         guardUI = GetComponent<GuardUI>();
 
+        agent.enabled = false;
+        transform.position = waypoints[0];
+        transform.rotation = Quaternion.identity;
+        agent.enabled = true;
+
+
         currentStates = BehaviourStates.PATROL;
         prevStates = BehaviourStates.PATROL;
-        StartCoroutine(Behaviour_State_Update()); // starts behaviour change
-        StartCoroutine(Behaviour_thoughts()); // start visually showing guard's thoughts
-        
+
         eventListener = GetComponent<GameEventListener>();
         eventListener.Response.AddListener(TreasureStolenAlert);
+
+        StartCoroutine(Behaviour_State_Update()); // starts behaviour change
+        StartCoroutine(Behaviour_thoughts()); // start visually showing guard's thoughts
+        Behaviour_Response();
+        StartSuspicion();
+
+
 
         // if true, then output regions where the player is seen via Debug
         if (Debug_lines)
@@ -126,6 +140,7 @@ public class Guard : MonoBehaviour
     // begins the AI suspicion manager. 
     public void StartSuspicion()
     {
+
         StartCoroutine(SuspicionManager());
     }
 
@@ -135,10 +150,13 @@ public class Guard : MonoBehaviour
 
         while (true)
         {
-            if(gm.Current_Game_State == gamemanager.Game_State.GAME) // if the game-manager state is in gameplay...
+
+            if (gm.Current_Game_State == gamemanager.Game_State.GAME) // if the game-manager state is in gameplay...
             {
+                //Debug.Log("STARTING SUS");
                 if (!Player.GetComponent<Player_Powers>().InvisibilityOn) // if invisiblity is not on...
                 {
+
                     float len = (Player.transform.position - transform.position).sqrMagnitude;
                     bool playerWithinLength = len <= Mathf.Pow(guardData.MaxSightDistance, 2);
 
@@ -147,6 +165,7 @@ public class Guard : MonoBehaviour
 
                     if (playerWithinLength && playerWithinSightRange)
                     {
+
                         RaycastHit hit;
                         if (Physics.Raycast(transform.position, Player.transform.position - transform.position, out hit, guardData.MaxSightDistance)) // if the guard can see something...
                         {
@@ -309,7 +328,14 @@ public class Guard : MonoBehaviour
     }
 
     // virtual function for beginning patrols (based on type of guard)
-    protected virtual void Begin_Patrol() { }
+    protected virtual void Begin_Patrol() 
+    {
+        if(Current_Behaviour_Enum != null)
+        {
+            StopCoroutine(Current_Behaviour_Enum);
+        }
+        Current_Behaviour_Enum = StartCoroutine(LookAndMove());
+    }
 
     // virtual function for beginning investigations
     protected virtual void Begin_Investigate() {
@@ -412,8 +438,6 @@ public class Guard : MonoBehaviour
     // for visual representation of the current behaviour, a thought bubble will appear
     IEnumerator Behaviour_thoughts()
     {
-
-
         int wait;
         guardUI.ToggleThoughtImage(false);
         // randomly waits for time to make the thoughts more authentic
@@ -439,6 +463,64 @@ public class Guard : MonoBehaviour
                 }
             }
             yield return new WaitForSeconds(wait);
+        }
+    }
+
+    // a continuous function for the guard's patrolling actions
+    IEnumerator LookAndMove()
+    {
+        bool reverse = false; // depicts whether to go backwards in the list of waypoints
+        while (true)
+        {
+            turning = true;
+
+            for(int i = 0; i < 3; i++)
+            {
+                rotateCounter = 0.0f;
+                current = transform.rotation;
+                target = current * Quaternion.Euler(0, 90f, 0);
+                yield return new WaitForSeconds(waitingTime);
+            }
+
+            turning = false;
+
+            if(waypoints.Count > 1)
+            {
+                // determine whether the waypoint list should go forwards or backwards
+                if (waypoint_index == waypoints.Count - 1 && !reverse)
+                {
+                    reverse = true;
+                }
+                if (waypoint_index == 0 && reverse)
+                {
+                    reverse = false;
+                }
+
+                // the next waypoint to go
+                if (reverse)
+                {
+                    waypoint_index--;
+                }
+                else
+                {
+                    waypoint_index++;
+                }
+
+                agent.SetDestination(waypoints[waypoint_index]); // sets the new postition to go to.
+
+                bool closeEnough = false;
+                AP.Guard_ani.SetBool("IsMoving", true);
+                while (!closeEnough) // if close enough then stop walking and repeat turning
+                {
+                    if ((transform.position - waypoints[waypoint_index]).magnitude < 1.0f)
+                    {
+                        closeEnough = true;
+                    }
+                    yield return new WaitForSeconds(0.5f);
+                }
+                AP.Guard_ani.SetBool("IsMoving", false);
+            }
+
         }
     }
 

@@ -60,11 +60,11 @@ public class GuardGenerator : MonoBehaviour
             FloorNode node = PossRooms[chosen];
             // MOVE THINGS INTO GRAPH
             g = Instantiate(GuardObject, PossRooms[chosen].transform.position + new Vector3(0, 1.5f, 0), Quaternion.identity);
-            g.AddComponent<Standing_Guard>();
-            g.GetComponent<Standing_Guard>().StandingPoint = PossRooms[chosen].transform.position + new Vector3(0, 1.5f, 0); // gives a guard a standing point for the floor
-            g.GetComponent<Standing_Guard>().Stand = true; // parent identifier on what type guard is
-            g.GetComponent<Standing_Guard>().guardData = Instantiate(allGuardData[Random.Range(0, allGuardData.Count)]);
-            g.GetComponent<Standing_Guard>().Start_Guard(); // initialises the guard
+            g.AddComponent<Guard>();
+            g.GetComponent<Guard>().waypoints.Add(PossRooms[chosen].transform.position + new Vector3(0, 1.5f, 0)); // gives a guard a standing point for the floor
+            g.GetComponent<Guard>().Stand = true; // parent identifier on what type guard is
+            g.GetComponent<Guard>().guardData = Instantiate(allGuardData[Random.Range(0, allGuardData.Count)]);
+            g.GetComponent<Guard>().Start_Guard(); // initialises the guard
             PossRooms.RemoveAt(chosen); // removes the rooms so no duplicate guard.
 
         }
@@ -83,9 +83,9 @@ public class GuardGenerator : MonoBehaviour
             }
 
             g = Instantiate(GuardObject);
-            g.AddComponent<Walking_Guard>();
-            g.GetComponent<Walking_Guard>().Waypoint = true;
-            g.GetComponent<Walking_Guard>().guardData = Instantiate(allGuardData[Random.Range(0, allGuardData.Count)]);
+            g.AddComponent<Guard>();
+            g.GetComponent<Guard>().Waypoint = true;
+            g.GetComponent<Guard>().guardData = Instantiate(allGuardData[Random.Range(0, allGuardData.Count)]);
 
 
 
@@ -94,12 +94,12 @@ public class GuardGenerator : MonoBehaviour
                 int chos = Random.Range(0, FloorPaths.Count);
 
 
-                g.GetComponent<Walking_Guard>().waypoints.Add(FloorPaths[chos].transform.position + new Vector3(0, 1.5f, 0));
+                g.GetComponent<Guard>().waypoints.Add(FloorPaths[chos].transform.position + new Vector3(0, 1.5f, 0));
                 FloorPaths.RemoveAt(chos);
 
 
             }
-            g.GetComponent<Walking_Guard>().Start_Guard(); // initialises the guard
+            g.GetComponent<Guard>().Start_Guard(); // initialises the guard
         }
 
     }
