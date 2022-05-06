@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// transforms active rooms into treasure rooms, which contain a treasure. Part of the Maze generation sequence.
+/// </summary>
 public class TreasureRoomGenerator : MonoBehaviour
 {
     public GameObject Treasure;
-
-    // treasure rooms contain treasure.
     public int NoTreasureRooms = 3;
     public List<FloorNode> TreasureNodes = new List<FloorNode>();
     public FloorNodeList treasureRooms;
@@ -20,6 +21,9 @@ public class TreasureRoomGenerator : MonoBehaviour
     public int MinLimit = 0;
     public int MaxLimit = 0;
 
+    /// <summary>
+    /// Resets and removes treasures from treasure rooms.
+    /// </summary>
     public void ResetTreasureRooms()
     {
         foreach (GameObject g in TreasureItems)
@@ -32,6 +36,9 @@ public class TreasureRoomGenerator : MonoBehaviour
         treasureRooms.ClearList();
     }
 
+    /// <summary>
+    /// converts floors to be treasure rooms by selecting random corner rooms.
+    /// </summary>
     public void AddTreasureRooms()
     {
 
@@ -63,11 +70,19 @@ public class TreasureRoomGenerator : MonoBehaviour
         treasureRooms.AddList(TreasureNodes);
     }
 
+    /// <summary>
+    /// returns the number of Active treasure rooms in the level.
+    /// </summary>
+    /// <returns> The amount of active treasure rooms in the level</returns>
     public int ActiveTreasureRooms()
     {
         return treasureRooms.GetList().Count;
     }
 
+    /// <summary>
+    /// Sets the treasure value limits.
+    /// </summary>
+    /// <param name="newDifficultyScale"> The new difficulty value to adjust the treasure value amount.</param>
     public void SetTreasureRange(float newDifficultyScale)
     {
         MinTreasureAmount = (int)(20.0f * newDifficultyScale);

@@ -22,7 +22,7 @@ public class gamemanager : MonoBehaviour
     public Game_State Current_Game_State;
 
     // the number of floors the player has passed
-    int floor_num = 0;
+    int floor_num = 1;
     
     // the difficultyScale depicts how difficult the game should be
     public float difficultyScale = 1.0f;
@@ -37,17 +37,11 @@ public class gamemanager : MonoBehaviour
     public GameObject Player; // the player object
     public Image PowerBar; // power bar to show the power level
 
-    bool FirstLevelShow = true; // show the first floor option?
-    bool SecondLevelShow = false; // show the second floor option?
-    bool ThirdLevelShow = false; // show the third floor option?
-
-    public Text FloorLevel1; // text representation of level 1 showing
-    public Text FloorLevel2; // ""
-    public Text FloorLevel3; // ""
-
     public Text GameOver_Floor; // tells how many floors the player got passed
 
     public AudioSource AS; // overall audio system
+
+    public SelectScreenUI selectScreenUI;
 
     // plays at the beginning of the scene.
     void Start()
@@ -55,12 +49,14 @@ public class gamemanager : MonoBehaviour
         MazeGen = GetComponent<MazeGenerator>();
         TreasureGen = GetComponent<TreasureRoomGenerator>();
         GuardGen = GetComponent<GuardGenerator>();
-     
         AS = GetComponent<AudioSource>();
         SS = GetComponent<ScreenSwitcher>();
+        CM = GetComponent<CashManager>();
+
 
         SS.Self_Start();
-        CM = GetComponent<CashManager>();
+        selectScreenUI.ResetButtons();
+        selectScreenUI.ShowLevelButtons(floor_num, difficultyScale, 0.03f);
         StartCoroutine(CheckTotalSusLevel());
         UpdatePlayerStatus(Game_State.SELECT);
         Player = GameObject.FindGameObjectWithTag("Player");
@@ -171,14 +167,6 @@ public class gamemanager : MonoBehaviour
             ExitCondition = false;
             HasPlayerBeenChased = false;
 
-            if(FirstLevelShow && SecondLevelShow) // gradually release more floor options to the player
-            {
-                ThirdLevelShow = true;
-            } else if (FirstLevelShow)
-            {
-                SecondLevelShow = true;
-            }
-
         } else if(Current_Game_State == Game_State.GAME) // game screen
         {
             Debug.Log("PLAY STATE TO GAME");
@@ -200,24 +188,7 @@ public class gamemanager : MonoBehaviour
             ResetMaze();
             SS.ActivateScreen("select");
 
-            // the if statements check that the right floor options are shown
-            if(ThirdLevelShow && SecondLevelShow && FirstLevelShow)
-            {
-                FloorLevel3.transform.parent.gameObject.SetActive(true);
-                FloorLevel3.text = "Floor " + (floor_num + 2) + "\n\nDifficulty:\n" + (difficultyScale + 0.09f);
-                FloorLevel2.text = "Floor " + (floor_num + 1) + "\n\nDifficulty:\n" + (difficultyScale + 0.06f);
-                FloorLevel1.text = "Floor " + floor_num + "\n\nDifficulty:\n" + (difficultyScale + 0.03f);
-            } else if(SecondLevelShow && FirstLevelShow){
-                FloorLevel2.transform.parent.gameObject.SetActive(true);
-                FloorLevel2.text = "Floor " + (floor_num + 1) + "\n\nDifficulty:\n" + (difficultyScale + 0.06f);
-                FloorLevel1.text = "Floor " + floor_num + "\n\nDifficulty:\n" + (difficultyScale + 0.03f);
-            }
-            else
-            {
-                FloorLevel1.text = "Floor " + floor_num + "\n\nDifficulty:\n" + (difficultyScale + 0.03f);
-                FloorLevel2.transform.parent.gameObject.SetActive(false);
-                FloorLevel3.transform.parent.gameObject.SetActive(false);
-            }
+            selectScreenUI.ShowLevelButtons(floor_num, difficultyScale, 0.03f);
 
         } else if(Current_Game_State == Game_State.CAPTURED)// over
         {
@@ -233,7 +204,7 @@ public class gamemanager : MonoBehaviour
     {
         foreach(GameObject g in GameObject.FindGameObjectsWithTag("Guard")) // tell all guards to disable their behaviours
         {
-            g.GetComponent<Guard>().DisableGuard = true;
+            g.GetComponent<Guard>().IsDisableGuard = true;
 
         }
         UpdatePlayerStatus(Game_State.CAPTURED);
@@ -247,12 +218,7 @@ public class gamemanager : MonoBehaviour
         treasureCount = 0;
         CM.Reset_Game();
         ResetMaze();
-
-        SecondLevelShow = false;
-        ThirdLevelShow = false;
-        FloorLevel1.transform.parent.gameObject.SetActive(true);
-        FloorLevel2.transform.parent.gameObject.SetActive(false);
-        FloorLevel3.transform.parent.gameObject.SetActive(false);
+        selectScreenUI.ResetButtons();
         difficultyScale = 1;
         UpdatePlayerStatus(Game_State.SELECT);
     }

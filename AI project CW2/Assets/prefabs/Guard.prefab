@@ -901,16 +901,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GuardSuspicionLevel: 0
   guardData: {fileID: 0}
-  lr: {fileID: 2849105161636197314}
+  debugLr: {fileID: 2849105161636197314}
   currentStates: 0
-  TreasureStolen: 0
-  DisableGuard: 0
-  Debug_lines: 1
-  waypoints: []
-  waitingTime: 1
+  IsTreasureStolen: 0
+  IsDisableGuard: 0
+  ShowDebug_lines: 0
   OnTreasureStolen: {fileID: 11400000, guid: d41b4c0fc9072f242974612583bf3994, type: 2}
   OnPlayerCaptured: {fileID: 11400000, guid: 86226974e9bd47b4eb5c43e7e5ec18ab, type: 2}
-  Guard_ani: {fileID: 6140346916493975028}
+  Guard_animation: {fileID: 6140346916493975028}
+  waypoints: []
 --- !u!114 &6534681917610750586
 MonoBehaviour:
   m_ObjectHideFlags: 0

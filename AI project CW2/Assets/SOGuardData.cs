@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Contains info about a guard, like how reactive it is and their range of sight and feel.
+/// </summary>
 [CreateAssetMenu(fileName = "New Guard Data", menuName = "Guard Data")]
 public class SOGuardData : ScriptableObject
 {
@@ -29,4 +32,7 @@ public class SOGuardData : ScriptableObject
     public float SecondZoneLimit = 12.0f; // 70% 6-14
     public float ThirdZoneLimit = 15.0f; // 100% 14-20
 
+    [Space]
+    [Tooltip("How long to wait before turning 90 degrees (In seconds)")]
+    public float waitingTime = 1.0f;
 }

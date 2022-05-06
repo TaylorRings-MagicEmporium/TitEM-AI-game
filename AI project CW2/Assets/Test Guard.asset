@@ -19,6 +19,7 @@ MonoBehaviour:
   MaxSightDistance: 15
   MaxFeelDistance: 5
   AngleLimit: 45
-  FirstZoneLimit: 7.5
+  FirstZoneLimit: 0
   SecondZoneLimit: 12
   ThirdZoneLimit: 15
+  waitingTime: 1
