@@ -532,4 +532,9 @@ public class Guard : MonoBehaviour
         }
     }
 
+    public void OnDestroy()
+    {
+        StopAllCoroutines();
+    }
+
 }

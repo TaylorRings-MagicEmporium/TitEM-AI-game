@@ -84,6 +84,11 @@ public class CashManager : MonoBehaviour
         GameOverTotal.text = "Total Earned: \n$" + TotalMoney;
     }
 
+    public int GetCashValue()
+    {
+        return TotalMoney;
+    }
+
     IEnumerator ListValues()
     {
         int b = TotalRecieved.Count;

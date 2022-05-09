@@ -27,39 +27,43 @@ public class gamemanager : MonoBehaviour
     // the difficultyScale depicts how difficult the game should be
     public float difficultyScale = 1.0f;
 
-    public MazeGenerator MazeGen; // used for generating floors
+    public MazeGenerator MazeGen; 
     public TreasureRoomGenerator TreasureGen;
     public GuardGenerator GuardGen;
     public NavMeshBuilder navMeshGen;
-    public ScreenSwitcher SS; // used to switch screens easily
-    public CashManager CM; // used to manage the result screen and how the cash is collected
+    public ScreenSwitcher ScreenSwitch; 
+    public CashManager CashM; 
 
-    public GameObject Player; // the player object
-    public Image PowerBar; // power bar to show the power level
+    public GameObject Player;
+    public Image PowerBar;
 
-    public Text GameOver_Floor; // tells how many floors the player got passed
+    public Text GameOver_Floor;
 
-    public AudioSource AS; // overall audio system
+    public AudioSource AudioS;
 
     public SelectScreenUI selectScreenUI;
 
+    public HighscoreManager highscoreM;
     // plays at the beginning of the scene.
     void Start()
     {
         MazeGen = GetComponent<MazeGenerator>();
         TreasureGen = GetComponent<TreasureRoomGenerator>();
         GuardGen = GetComponent<GuardGenerator>();
-        AS = GetComponent<AudioSource>();
-        SS = GetComponent<ScreenSwitcher>();
-        CM = GetComponent<CashManager>();
+        AudioS = GetComponent<AudioSource>();
+        ScreenSwitch = GetComponent<ScreenSwitcher>();
+        CashM = GetComponent<CashManager>();
 
 
-        SS.Self_Start();
+        ScreenSwitch.Self_Start();
         selectScreenUI.ResetButtons();
         selectScreenUI.ShowLevelButtons(floor_num, difficultyScale, 0.03f);
         StartCoroutine(CheckTotalSusLevel());
         UpdatePlayerStatus(Game_State.SELECT);
         Player = GameObject.FindGameObjectWithTag("Player");
+
+        highscoreM.SetupHighscore();
+        highscoreM.DisplayScores();
 
     }
 
@@ -96,7 +100,7 @@ public class gamemanager : MonoBehaviour
     // provides the cash manager with the treasure name and amount
     public void AddTreasureValue(string tresName, int amount)
     { 
-        CM.AddMoney(tresName, amount);
+        CashM.AddMoney(tresName, amount);
         treasureCount++;
     }
 
@@ -161,8 +165,8 @@ public class gamemanager : MonoBehaviour
         {
             Debug.Log("PLAY STATE TO ESCAPED");
             EndLevelConditions();
-            SS.ActivateScreen("result");
-            CM.DisplayMoneySummary();
+            ScreenSwitch.ActivateScreen("result");
+            CashM.DisplayMoneySummary();
             treasureCount = 0;
             ExitCondition = false;
             HasPlayerBeenChased = false;
@@ -170,32 +174,35 @@ public class gamemanager : MonoBehaviour
         } else if(Current_Game_State == Game_State.GAME) // game screen
         {
             Debug.Log("PLAY STATE TO GAME");
-            SS.ActivateScreen("game");
+            ScreenSwitch.ActivateScreen("game");
 
         }
         else if(Current_Game_State == Game_State.READY) // ready screen
         {
             Debug.Log("PLAY STATE TO READY");
-            AS.Play();
-            SS.ActivateScreen("ready");
+            AudioS.Play();
+            ScreenSwitch.ActivateScreen("ready");
 
         }
         else if(Current_Game_State == Game_State.SELECT) //select screen
         {
             Debug.Log("PLAY STATE TO SELECT");
-            AS.Stop();
-            CM.FinishSummary();
+            AudioS.Stop();
+            CashM.FinishSummary();
             ResetMaze();
-            SS.ActivateScreen("select");
+            ScreenSwitch.ActivateScreen("select");
 
             selectScreenUI.ShowLevelButtons(floor_num, difficultyScale, 0.03f);
 
         } else if(Current_Game_State == Game_State.CAPTURED)// over
         {
             Debug.Log("PLAY STATE TO CAPTURED");
-            SS.ActivateScreen("over");
+            ScreenSwitch.ActivateScreen("over");
             GameOver_Floor.text = "Floor Captured:\n" + floor_num;
-            CM.DisplayFinalValue();
+            CashM.DisplayFinalValue();
+            highscoreM.AddScore(CashM.GetCashValue(), floor_num);
+            highscoreM.DisplayScores();
+            highscoreM.saveScores();
         }
     }
 
@@ -214,9 +221,9 @@ public class gamemanager : MonoBehaviour
     // resets the whole game for another run
     public void Reset_Game()
     {
-        floor_num = 0;
+        floor_num = 1;
         treasureCount = 0;
-        CM.Reset_Game();
+        CashM.Reset_Game();
         ResetMaze();
         selectScreenUI.ResetButtons();
         difficultyScale = 1;
@@ -269,15 +276,15 @@ public class gamemanager : MonoBehaviour
     {
         if (Player.GetComponent<Player_Powers>().currentPowerLevel > Player.GetComponent<Player_Powers>().MaxPowerLevel * 0.9f)
         {
-            CM.AddMoney("Little power used!", (int)(25 * difficultyScale)); // if only 10% of power was used, then they earn this bonus
+            CashM.AddMoney("Little power used!", (int)(25 * difficultyScale)); // if only 10% of power was used, then they earn this bonus
         }
         if (treasureCount == TreasureGen.ActiveTreasureRooms())
         {
-            CM.AddMoney("Collect All Treasure!", (int)(40 * difficultyScale)); // if they collect all of the treasure on the floor, then they earn this bonus
+            CashM.AddMoney("Collect All Treasure!", (int)(40 * difficultyScale)); // if they collect all of the treasure on the floor, then they earn this bonus
         }
         if (!HasPlayerBeenChased)
         {
-            CM.AddMoney("Haven't Been Chased!", (int)(50 * difficultyScale)); // if the player has not been chased on the floor, then they earn this bonus.
+            CashM.AddMoney("Haven't Been Chased!", (int)(50 * difficultyScale)); // if the player has not been chased on the floor, then they earn this bonus.
         }
     }
 
