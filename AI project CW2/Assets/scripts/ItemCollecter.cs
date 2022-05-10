@@ -6,6 +6,8 @@ public class ItemCollecter : MonoBehaviour
 {
     public gamemanager gm;
 
+    public AudioSource SwippingSound;
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Treasure"))
@@ -17,6 +19,7 @@ public class ItemCollecter : MonoBehaviour
                 //other.GetComponent<Collider>().enabled = false;
                 gm.AddTreasureValue(ti.TresName,ti.value);
                 ti.TreasureTakenUpdate();
+                SwippingSound.Play();
             }
 
         }

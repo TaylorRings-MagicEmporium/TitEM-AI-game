@@ -17,15 +17,17 @@ public class HighscoreManager : MonoBehaviour
 
     public void SetupHighscore()
     {
-        for(int i = 0; i < maxScoresRecorded; i++)
-        {
-            scores.Add(new ScoreStat(0, 0));
-        }
+
         var temp = reader.ReadFromFile();
         if(temp != null)
         {
             scores = temp;
         }
+        for (int i = scores.Count; i < maxScoresRecorded; i++)
+        {
+            scores.Add(new ScoreStat(0, 0));
+        }
+        scores.RemoveRange(maxScoresRecorded,scores.Count - maxScoresRecorded);
     }
     public void DisplayScores()
     {
@@ -70,6 +72,16 @@ public class HighscoreManager : MonoBehaviour
 
     public void ClearScores()
     {
-        
+        for(int i = 0; i < scores.Count; i++)
+        {
+            scores[i].cashAmount = 0;
+            scores[i].floorNum = 0;
+        }
+        writer.WriteToFile(scores);
+    }
+
+    public void DeleteHighscoreFile()
+    {
+        writer.DeleteHighscoreFile();
     }
 }

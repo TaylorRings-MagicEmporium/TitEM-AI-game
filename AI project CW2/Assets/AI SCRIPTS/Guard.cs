@@ -370,7 +370,7 @@ public class Guard : MonoBehaviour
         }
 
         Guard_animation.SetBool("IsMoving", true);
-        while (true)
+        while (true && gm.Current_Game_State != gamemanager.Game_State.CAPTURED)
         {
             agent.SetDestination(Player.transform.position);
             agent.updateRotation = true;

@@ -36,4 +36,12 @@ public class HighscoreWriter : MonoBehaviour
             return false;
         }
     }
+
+    public void DeleteHighscoreFile()
+    {
+        if (File.Exists(Application.persistentDataPath + "/" + FileName + ".txt"))
+        {
+            File.Delete(Application.persistentDataPath + "/" + FileName + ".txt");
+        }
+    }
 }

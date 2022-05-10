@@ -39,7 +39,10 @@ public class gamemanager : MonoBehaviour
 
     public Text GameOver_Floor;
 
-    public AudioSource AudioS;
+    public AudioSource musicAudioS;
+
+    public AudioSource alarmNoise;
+    public Animator alarmVisuals;
 
     public SelectScreenUI selectScreenUI;
 
@@ -50,7 +53,7 @@ public class gamemanager : MonoBehaviour
         MazeGen = GetComponent<MazeGenerator>();
         TreasureGen = GetComponent<TreasureRoomGenerator>();
         GuardGen = GetComponent<GuardGenerator>();
-        AudioS = GetComponent<AudioSource>();
+        musicAudioS = GetComponent<AudioSource>();
         ScreenSwitch = GetComponent<ScreenSwitcher>();
         CashM = GetComponent<CashManager>();
 
@@ -126,11 +129,19 @@ public class gamemanager : MonoBehaviour
 
             if (HighestLevel > 80.0f)
             {
+                if (!alarmNoise.isPlaying && (Current_Game_State != Game_State.ESCAPED && Current_Game_State != Game_State.CAPTURED))
+                {
+                    alarmNoise.Play();
+                    alarmVisuals.SetBool("alarmOn", true);
+
+                }
                 LevelState.text = "criminal!";
 
             }
             else if (HighestLevel > 50.0f)
             {
+                alarmNoise.Stop();
+                alarmVisuals.SetBool("alarmOn", false);
                 LevelState.text = "suspicious!";
 
             }
@@ -163,6 +174,8 @@ public class gamemanager : MonoBehaviour
         Current_Game_State = state;
         if(Current_Game_State == Game_State.ESCAPED) //result screen
         {
+            alarmNoise.Stop();
+            alarmVisuals.SetBool("alarmOn", false);
             Debug.Log("PLAY STATE TO ESCAPED");
             EndLevelConditions();
             ScreenSwitch.ActivateScreen("result");
@@ -180,22 +193,27 @@ public class gamemanager : MonoBehaviour
         else if(Current_Game_State == Game_State.READY) // ready screen
         {
             Debug.Log("PLAY STATE TO READY");
-            AudioS.Play();
+            musicAudioS.Play();
             ScreenSwitch.ActivateScreen("ready");
 
         }
         else if(Current_Game_State == Game_State.SELECT) //select screen
         {
+            alarmNoise.Stop();
+            alarmVisuals.SetBool("alarmOn", false);
             Debug.Log("PLAY STATE TO SELECT");
-            AudioS.Stop();
+            musicAudioS.Stop();
             CashM.FinishSummary();
             ResetMaze();
             ScreenSwitch.ActivateScreen("select");
+            selectScreenUI.ShowCurrentStats(floor_num-1, CashM.GetCashValue());
 
             selectScreenUI.ShowLevelButtons(floor_num, difficultyScale, 0.03f);
 
         } else if(Current_Game_State == Game_State.CAPTURED)// over
         {
+            alarmNoise.Stop();
+            alarmVisuals.SetBool("alarmOn", false);
             Debug.Log("PLAY STATE TO CAPTURED");
             ScreenSwitch.ActivateScreen("over");
             GameOver_Floor.text = "Floor Captured:\n" + floor_num;
